@@ -1,0 +1,51 @@
+<section>
+  <h1>Gestion du matériel horticole</h1>
+
+  @if (materielService.chargement()) {
+    <p>Chargement du matériel...</p>
+  }
+
+  @if (materielService.erreur()) {
+    <p>{{ materielService.erreur() }}</p>
+  }
+
+  @if (!materielService.chargement() && !materielService.erreur()) {
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Catégorie</th>
+          <th>Description</th>
+          <th>Prix / jour</th>
+          <th>Total</th>
+          <th>Disponible</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (materiel of materielService.materiels(); track materiel.id) {
+          <tr>
+            <td>{{ materiel.nom }}</td>
+            <td>{{ materiel.categorieNom }}</td>
+            <td>{{ materiel.description || '-' }}</td>
+            <td>{{ materiel.prixJournalier }} €</td>
+            <td>{{ materiel.quantiteTotale }}</td>
+            <td>{{ materiel.quantiteDisponible }}</td>
+            <td>
+              @if (materiel.actif) {
+                Actif
+              } @else {
+                Inactif
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7">Aucun matériel.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
