@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Client } from '../models/client';
+import { CreateClient } from '../models/create-client';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +29,9 @@ export class ClientService {
         this.chargement.set(false);
       }
     });
+  }
+
+  creer(client: CreateClient): Observable<Client> {
+    return this.http.post<Client>(this.apiUrl, client);
   }
 }

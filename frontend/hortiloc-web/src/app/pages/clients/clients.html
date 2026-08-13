@@ -1,6 +1,47 @@
 <section>
   <h1>Gestion des clients</h1>
 
+  <h2>Ajouter un client</h2>
+
+  <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
+    <div>
+      <label for="nom">Nom</label>
+      <input id="nom" type="text" formControlName="nom">
+
+      @if (formulaire.controls.nom.touched && formulaire.controls.nom.invalid) {
+        <p>Le nom est obligatoire.</p>
+      }
+    </div>
+
+    <div>
+      <label for="prenom">Prénom</label>
+      <input id="prenom" type="text" formControlName="prenom">
+
+      @if (formulaire.controls.prenom.touched && formulaire.controls.prenom.invalid) {
+        <p>Le prénom est obligatoire.</p>
+      }
+    </div>
+
+    <div>
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email">
+    </div>
+
+    <div>
+      <label for="telephone">Téléphone</label>
+      <input id="telephone" type="text" formControlName="telephone">
+    </div>
+
+    <div>
+      <label for="adresse">Adresse</label>
+      <input id="adresse" type="text" formControlName="adresse">
+    </div>
+
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <h2>Liste des clients</h2>
+
   @if (clientService.chargement()) {
     <p>Chargement des clients...</p>
   }
