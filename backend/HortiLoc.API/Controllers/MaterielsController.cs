@@ -33,4 +33,67 @@ public class MaterielsController : ControllerBase
 
         return Ok(materiel);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<Materiel>> Create(CreateMaterielDto dto)
+    {
+        try
+        {
+            var materiel = await _materielService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = materiel.Id },
+                materiel
+            );
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, UpdateMaterielDto dto)
+    {
+        try
+        {
+            bool modifie = await _materielService.UpdateAsync(id, dto);
+
+            if (!modifie)
+                return NotFound();
+
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Disable(int id)
+    {
+        bool desactive = await _materielService.DisableAsync(id);
+
+        if (!desactive)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpPatch("{id:int}/reactiver")]
+    public async Task<IActionResult> Reactivate(int id)
+    {
+        bool reactive = await _materielService.ReactivateAsync(id);
+
+        if (!reactive)
+            return NotFound();
+
+        return NoContent();
+    }
 }
