@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Client } from '../../models/client';
 import { ClientService } from '../../services/client';
 
 @Component({
@@ -32,20 +33,69 @@ export class Clients implements OnInit {
 
     const valeur = this.formulaire.getRawValue();
 
-    this.clientService.creer({
+    const dto = {
       nom: valeur.nom!,
       prenom: valeur.prenom!,
       email: valeur.email || null,
       telephone: valeur.telephone || null,
       adresse: valeur.adresse || null
-    }).subscribe({
-      next: () => {
-        this.formulaire.reset();
-        this.clientService.charger();
-      },
-      error: err => {
-        console.error(err);
-      }
+    };
+
+    const id = this.clientService.clientEnEditionId();
+
+    if (id === null) {
+      this.clientService.creer(dto).subscribe({
+        next: () => {
+          this.annuler();
+          this.clientService.charger();
+        },
+        error: err => console.error(err)
+      });
+    } else {
+      this.clientService.modifier(id, dto).subscribe({
+        next: () => {
+          this.annuler();
+          this.clientService.charger();
+        },
+        error: err => console.error(err)
+      });
+    }
+  }
+
+  modifier(client: Client): void {
+    this.clientService.clientEnEditionId.set(client.id);
+
+    this.formulaire.patchValue({
+      nom: client.nom,
+      prenom: client.prenom,
+      email: client.email ?? '',
+      telephone: client.telephone ?? '',
+      adresse: client.adresse ?? ''
+    });
+  }
+
+  annuler(): void {
+    this.clientService.clientEnEditionId.set(null);
+    this.formulaire.reset();
+  }
+
+  desactiver(client: Client): void {
+    if (!confirm(`Désactiver ${client.prenom} ${client.nom} ?`))
+      return;
+
+    this.clientService.desactiver(client.id).subscribe({
+      next: () => this.clientService.charger(),
+      error: err => console.error(err)
+    });
+  }
+
+  reactiver(client: Client): void {
+    if (!confirm(`Réactiver ${client.prenom} ${client.nom} ?`))
+      return;
+
+    this.clientService.reactiver(client.id).subscribe({
+      next: () => this.clientService.charger(),
+      error: err => console.error(err)
     });
   }
 }

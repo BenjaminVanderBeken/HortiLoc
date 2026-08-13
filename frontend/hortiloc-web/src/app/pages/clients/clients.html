@@ -1,7 +1,11 @@
 <section>
   <h1>Gestion des clients</h1>
 
-  <h2>Ajouter un client</h2>
+  @if (clientService.clientEnEditionId() === null) {
+    <h2>Ajouter un client</h2>
+  } @else {
+    <h2>Modifier le client</h2>
+  }
 
   <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
     <div>
@@ -37,7 +41,12 @@
       <input id="adresse" type="text" formControlName="adresse">
     </div>
 
-    <button type="submit">Ajouter</button>
+    @if (clientService.clientEnEditionId() === null) {
+      <button type="submit">Ajouter</button>
+    } @else {
+      <button type="submit">Enregistrer les modifications</button>
+      <button type="button" (click)="annuler()">Annuler</button>
+    }
   </form>
 
   <h2>Liste des clients</h2>
@@ -60,6 +69,7 @@
           <th>Téléphone</th>
           <th>Adresse</th>
           <th>Statut</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
@@ -71,6 +81,7 @@
             <td>{{ client.email || '-' }}</td>
             <td>{{ client.telephone || '-' }}</td>
             <td>{{ client.adresse || '-' }}</td>
+
             <td>
               @if (client.actif) {
                 Actif
@@ -78,10 +89,26 @@
                 Inactif
               }
             </td>
+
+            <td>
+              <button type="button" (click)="modifier(client)">
+                Modifier
+              </button>
+
+              @if (client.actif) {
+                <button type="button" (click)="desactiver(client)">
+                  Désactiver
+                </button>
+              } @else {
+                <button type="button" (click)="reactiver(client)">
+                  Réactiver
+                </button>
+              }
+            </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="6">Aucun client.</td>
+            <td colspan="7">Aucun client.</td>
           </tr>
         }
       </tbody>

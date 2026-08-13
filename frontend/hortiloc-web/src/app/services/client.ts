@@ -14,6 +14,7 @@ export class ClientService {
   clients = signal<Client[]>([]);
   chargement = signal(false);
   erreur = signal('');
+  clientEnEditionId = signal<number | null>(null);
 
   charger(): void {
     this.chargement.set(true);
@@ -33,5 +34,17 @@ export class ClientService {
 
   creer(client: CreateClient): Observable<Client> {
     return this.http.post<Client>(this.apiUrl, client);
+  }
+
+  modifier(id: number, client: CreateClient): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, client);
+  }
+
+  desactiver(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  reactiver(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/reactiver`, {});
   }
 }
