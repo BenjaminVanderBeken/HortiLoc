@@ -26,6 +26,8 @@ builder.Services.AddSingleton(
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ClientService>();
+builder.Services.AddScoped<IMaterielRepository, MaterielRepository>();
+builder.Services.AddScoped<MaterielService>();
 
 var app = builder.Build();
 
