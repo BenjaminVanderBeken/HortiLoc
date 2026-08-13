@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/HortiLoc.API/HortiLoc.API.csproj" />
+    <Project Path="backend/HortiLoc.Core/HortiLoc.Core.csproj" />
+    <Project Path="backend/HortiLoc.Infrastructure/HortiLoc.Infrastructure.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,6 @@
+@HortiLoc.API_HostAddress = http://localhost:5177
+
+GET {{HortiLoc.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
