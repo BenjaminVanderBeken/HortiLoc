@@ -1,0 +1,166 @@
+<section>
+  <h1>Gestion des maintenances</h1>
+
+  <h2>Nouvelle maintenance</h2>
+
+  <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
+
+    <div>
+      <label for="materielId">Matériel</label>
+
+      <select
+        id="materielId"
+        formControlName="materielId"
+      >
+        <option [ngValue]="null">
+          Sélectionner un matériel
+        </option>
+
+        @for (materiel of materielService.materiels(); track materiel.id) {
+          @if (materiel.actif) {
+            <option [ngValue]="materiel.id">
+              {{ materiel.nom }}
+            </option>
+          }
+        }
+      </select>
+    </div>
+
+    <div>
+      <label for="dateDebut">Date de début</label>
+
+      <input
+        id="dateDebut"
+        type="date"
+        formControlName="dateDebut"
+      >
+    </div>
+
+    <div>
+      <label for="motif">Motif</label>
+
+      <textarea
+        id="motif"
+        formControlName="motif"
+      ></textarea>
+    </div>
+
+    <button type="submit">
+      Créer la maintenance
+    </button>
+
+  </form>
+
+  @if (maintenanceService.erreur()) {
+    <p>{{ maintenanceService.erreur() }}</p>
+  }
+
+  <h2>Maintenances existantes</h2>
+
+  @if (maintenanceService.chargement()) {
+    <p>Chargement des maintenances...</p>
+  }
+
+  @if (!maintenanceService.chargement()) {
+
+    <table>
+      <thead>
+        <tr>
+          <th>Matériel</th>
+          <th>Date début</th>
+          <th>Date fin</th>
+          <th>Motif</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        @for (
+          maintenance of maintenanceService.maintenances();
+          track maintenance.id
+        ) {
+
+          <tr>
+
+            <td>
+              {{ maintenance.materielNom }}
+            </td>
+
+            <td>
+              {{ maintenance.dateDebut }}
+            </td>
+
+            <td>
+              {{ maintenance.dateFin || '-' }}
+            </td>
+
+            <td>
+              {{ maintenance.motif }}
+            </td>
+
+            <td>
+
+              @switch (maintenance.statut) {
+
+                @case ('PLANIFIEE') {
+                  Planifiée
+                }
+
+                @case ('EN_COURS') {
+                  En cours
+                }
+
+                @case ('TERMINEE') {
+                  Terminée
+                }
+
+                @default {
+                  {{ maintenance.statut }}
+                }
+
+              }
+
+            </td>
+
+            <td>
+
+              @if (maintenance.statut === 'PLANIFIEE') {
+                <button
+                  type="button"
+                  (click)="demarrer(maintenance.id)"
+                >
+                  Démarrer
+                </button>
+              }
+
+              @if (maintenance.statut === 'EN_COURS') {
+                <button
+                  type="button"
+                  (click)="terminer(maintenance.id)"
+                >
+                  Terminer
+                </button>
+              }
+
+            </td>
+
+          </tr>
+
+        } @empty {
+
+          <tr>
+            <td colspan="6">
+              Aucune maintenance.
+            </td>
+          </tr>
+
+        }
+
+      </tbody>
+    </table>
+
+  }
+
+</section>

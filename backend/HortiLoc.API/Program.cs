@@ -30,6 +30,8 @@ builder.Services.AddScoped<IMaterielRepository, MaterielRepository>();
 builder.Services.AddScoped<MaterielService>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<LocationService>();
+builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
+builder.Services.AddScoped<MaintenanceService>();
 
 var app = builder.Build();
 
