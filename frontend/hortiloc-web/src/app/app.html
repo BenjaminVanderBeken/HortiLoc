@@ -1,1 +1,47 @@
-<router-outlet />
+<header class="app-header">
+  <div class="brand">
+    <h1>HortiLoc</h1>
+    <p>Gestion de location de matériel horticole</p>
+  </div>
+
+  <nav class="navigation">
+    <a
+      routerLink="/clients"
+      routerLinkActive="actif"
+    >
+      Clients
+    </a>
+
+    <a
+      routerLink="/categories"
+      routerLinkActive="actif"
+    >
+      Catégories
+    </a>
+
+    <a
+      routerLink="/materiels"
+      routerLinkActive="actif"
+    >
+      Matériel
+    </a>
+
+    <a
+      routerLink="/locations"
+      routerLinkActive="actif"
+    >
+      Locations
+    </a>
+
+    <a
+      routerLink="/maintenances"
+      routerLinkActive="actif"
+    >
+      Maintenances
+    </a>
+  </nav>
+</header>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>

@@ -1,32 +1,6 @@
 <section>
   <h1>Gestion des locations</h1>
 
-  @if (locationService.chargement()) {
-    <p>Chargement des locations...</p>
-  }
-
-  @if (locationService.erreur()) {
-    <p>{{ locationService.erreur() }}</p>
-  }
-
-  @if (!locationService.chargement() && !locationService.erreur()) {
-    <table>
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Date début</th>
-          <th>Date fin prévue</th>
-          <th>Date retour</th>
-          <th>Montant</th>
-          <th>Statut</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <section>
-  <h1>Gestion des locations</h1>
-
   <h2>Nouvelle location</h2>
 
   <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
@@ -82,7 +56,9 @@
         <div [formGroupName]="i">
 
           <select formControlName="materielId">
-            <option [ngValue]="null">Sélectionner un matériel</option>
+            <option [ngValue]="null">
+              Sélectionner un matériel
+            </option>
 
             @for (materiel of materielService.materiels(); track materiel.id) {
               @if (materiel.actif && materiel.quantiteDisponible > 0) {
@@ -138,6 +114,7 @@
   }
 
   @if (!locationService.chargement()) {
+
     <table>
       <thead>
         <tr>
@@ -156,13 +133,18 @@
         @for (location of locationService.locations(); track location.id) {
 
           <tr>
+
             <td>
               {{ location.clientPrenom }} {{ location.clientNom }}
             </td>
 
-            <td>{{ location.dateDebut }}</td>
+            <td>
+              {{ location.dateDebut }}
+            </td>
 
-            <td>{{ location.dateFinPrevue }}</td>
+            <td>
+              {{ location.dateFinPrevue }}
+            </td>
 
             <td>
               {{ location.dateRetour || '-' }}
@@ -208,6 +190,7 @@
                 </button>
               }
             </td>
+
           </tr>
 
         } @empty {
@@ -222,61 +205,7 @@
 
       </tbody>
     </table>
+
   }
 
-</section>
-        @for (location of locationService.locations(); track location.id) {
-          <tr>
-            <td>
-              {{ location.clientPrenom }} {{ location.clientNom }}
-            </td>
-
-            <td>{{ location.dateDebut }}</td>
-
-            <td>{{ location.dateFinPrevue }}</td>
-
-            <td>{{ location.dateRetour || '-' }}</td>
-
-            <td>{{ location.montantTotal }} €</td>
-
-            <td>
-              @switch (location.statut) {
-                @case ('EN_ATTENTE') {
-                  En attente
-                }
-
-                @case ('EN_COURS') {
-                  En cours
-                }
-
-                @case ('RETOURNEE') {
-                  Retournée
-                }
-
-                @case ('ANNULEE') {
-                  Annulée
-                }
-
-                @default {
-                  {{ location.statut }}
-                }
-              }
-            </td>
-
-            <td>
-              @if (location.statut === 'EN_COURS') {
-                <button type="button" (click)="retourner(location.id)">
-                  Retourner
-                </button>
-              }
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="7">Aucune location.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
 </section>

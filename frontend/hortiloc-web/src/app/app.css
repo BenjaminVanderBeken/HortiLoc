@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f4;
+  color: #222;
+}
+
+.app-header {
+  background: #245c3a;
+  color: white;
+  padding: 20px 30px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.brand p {
+  margin: 5px 0 20px;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.navigation a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+.navigation a:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navigation a.actif {
+  background: white;
+  color: #245c3a;
+  font-weight: bold;
+}
+
+.app-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
