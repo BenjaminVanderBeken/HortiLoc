@@ -3,6 +3,7 @@ import { Clients } from './pages/clients/clients';
 import { Materiels } from './pages/materiels/materiels';
 import { Locations } from './pages/locations/locations';
 import { Maintenances } from './pages/maintenances/maintenances';
+import { Categories } from './pages/categories/categories';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,10 @@ export const routes: Routes = [
 {
   path: 'maintenances',
   component: Maintenances
+},
+{
+  path: 'categories',
+  component: Categories
 },
   
 ];

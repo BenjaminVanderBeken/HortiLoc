@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Materiel } from '../../models/materiel';
 import { MaterielService } from '../../services/materiel';
+import { CategorieService } from '../../services/categorie';
 
 @Component({
   selector: 'app-materiels',
@@ -11,18 +12,12 @@ import { MaterielService } from '../../services/materiel';
 })
 export class Materiels implements OnInit {
   materielService = inject(MaterielService);
+  categorieService = inject(CategorieService);
+
   private readonly fb = inject(FormBuilder);
 
-  categories = [
-    { id: 1, nom: 'Tonte' },
-    { id: 2, nom: 'Coupe' },
-    { id: 3, nom: 'Travail du sol' },
-    { id: 4, nom: 'Nettoyage' },
-    { id: 5, nom: 'Broyage' }
-  ];
-
   formulaire = this.fb.group({
-    categorieId: [1, Validators.required],
+    categorieId: [null as number | null, Validators.required],
     nom: ['', Validators.required],
     description: [''],
     prixJournalier: [0, [Validators.required, Validators.min(0)]],
@@ -31,6 +26,7 @@ export class Materiels implements OnInit {
 
   ngOnInit(): void {
     this.materielService.charger();
+    this.categorieService.charger();
   }
 
   enregistrer(): void {
@@ -42,7 +38,7 @@ export class Materiels implements OnInit {
     const valeur = this.formulaire.getRawValue();
 
     const dto = {
-      categorieId: valeur.categorieId!,
+      categorieId: Number(valeur.categorieId),
       nom: valeur.nom!,
       description: valeur.description || null,
       prixJournalier: valeur.prixJournalier!,
@@ -86,7 +82,7 @@ export class Materiels implements OnInit {
     this.materielService.materielEnEditionId.set(null);
 
     this.formulaire.reset({
-      categorieId: 1,
+      categorieId: null,
       nom: '',
       description: '',
       prixJournalier: 0,

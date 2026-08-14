@@ -1,0 +1,137 @@
+<section>
+  <h1>Gestion des catégories</h1>
+
+  <h2>
+    @if (categorieService.categorieEnEditionId() === null) {
+      Nouvelle catégorie
+    } @else {
+      Modifier la catégorie
+    }
+  </h2>
+
+  <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
+
+    <div>
+      <label for="nom">Nom</label>
+
+      <input
+        id="nom"
+        type="text"
+        formControlName="nom"
+      >
+    </div>
+
+    <div>
+      <label for="description">Description</label>
+
+      <textarea
+        id="description"
+        formControlName="description"
+      ></textarea>
+    </div>
+
+    <button type="submit">
+      @if (categorieService.categorieEnEditionId() === null) {
+        Ajouter
+      } @else {
+        Enregistrer les modifications
+      }
+    </button>
+
+    @if (categorieService.categorieEnEditionId() !== null) {
+      <button
+        type="button"
+        (click)="annuler()"
+      >
+        Annuler
+      </button>
+    }
+
+  </form>
+
+  @if (categorieService.erreur()) {
+    <p>{{ categorieService.erreur() }}</p>
+  }
+
+  <h2>Catégories existantes</h2>
+
+  @if (categorieService.chargement()) {
+    <p>Chargement des catégories...</p>
+  }
+
+  @if (!categorieService.chargement()) {
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        @for (
+          categorie of categorieService.categories();
+          track categorie.id
+        ) {
+
+          <tr>
+
+            <td>{{ categorie.nom }}</td>
+
+            <td>{{ categorie.description || '-' }}</td>
+
+            <td>
+              @if (categorie.actif) {
+                Active
+              } @else {
+                Inactive
+              }
+            </td>
+
+            <td>
+              <button
+                type="button"
+                (click)="modifierCategorie(categorie)"
+              >
+                Modifier
+              </button>
+
+              @if (categorie.actif) {
+                <button
+                  type="button"
+                  (click)="desactiver(categorie)"
+                >
+                  Désactiver
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="reactiver(categorie)"
+                >
+                  Réactiver
+                </button>
+              }
+            </td>
+
+          </tr>
+
+        } @empty {
+
+          <tr>
+            <td colspan="4">
+              Aucune catégorie.
+            </td>
+          </tr>
+
+        }
+
+      </tbody>
+    </table>
+
+  }
+
+</section>
