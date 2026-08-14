@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Clients } from './pages/clients/clients';
 import { Materiels } from './pages/materiels/materiels';
+import { Locations } from './pages/locations/locations';
 
 export const routes: Routes = [
   {
@@ -16,5 +17,10 @@ export const routes: Routes = [
     redirectTo: 'clients',
     pathMatch: 'full'
   },
+
+  {
+  path: 'locations',
+  component: Locations
+},
   
 ];

@@ -1,0 +1,282 @@
+<section>
+  <h1>Gestion des locations</h1>
+
+  @if (locationService.chargement()) {
+    <p>Chargement des locations...</p>
+  }
+
+  @if (locationService.erreur()) {
+    <p>{{ locationService.erreur() }}</p>
+  }
+
+  @if (!locationService.chargement() && !locationService.erreur()) {
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Date début</th>
+          <th>Date fin prévue</th>
+          <th>Date retour</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <section>
+  <h1>Gestion des locations</h1>
+
+  <h2>Nouvelle location</h2>
+
+  <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
+
+    <div>
+      <label for="clientId">Client</label>
+
+      <select id="clientId" formControlName="clientId">
+        <option [ngValue]="null">Sélectionner un client</option>
+
+        @for (client of clientService.clients(); track client.id) {
+          @if (client.actif) {
+            <option [ngValue]="client.id">
+              {{ client.prenom }} {{ client.nom }}
+            </option>
+          }
+        }
+      </select>
+    </div>
+
+    <div>
+      <label for="dateDebut">Date de début</label>
+      <input
+        id="dateDebut"
+        type="date"
+        formControlName="dateDebut"
+      >
+    </div>
+
+    <div>
+      <label for="dateFinPrevue">Date de fin prévue</label>
+      <input
+        id="dateFinPrevue"
+        type="date"
+        formControlName="dateFinPrevue"
+      >
+    </div>
+
+    <div>
+      <label for="notes">Notes</label>
+      <textarea
+        id="notes"
+        formControlName="notes"
+      ></textarea>
+    </div>
+
+    <h3>Matériel</h3>
+
+    <div formArrayName="details">
+
+      @for (ligne of details.controls; track $index; let i = $index) {
+
+        <div [formGroupName]="i">
+
+          <select formControlName="materielId">
+            <option [ngValue]="null">Sélectionner un matériel</option>
+
+            @for (materiel of materielService.materiels(); track materiel.id) {
+              @if (materiel.actif && materiel.quantiteDisponible > 0) {
+                <option [ngValue]="materiel.id">
+                  {{ materiel.nom }}
+                  - {{ materiel.prixJournalier }} €/jour
+                  - disponible : {{ materiel.quantiteDisponible }}
+                </option>
+              }
+            }
+          </select>
+
+          <input
+            type="number"
+            min="1"
+            formControlName="quantite"
+          >
+
+          <button
+            type="button"
+            (click)="supprimerLigne(i)"
+            [disabled]="details.length === 1"
+          >
+            Supprimer
+          </button>
+
+        </div>
+      }
+
+    </div>
+
+    <button
+      type="button"
+      (click)="ajouterLigne()"
+    >
+      Ajouter un matériel
+    </button>
+
+    <button type="submit">
+      Créer la location
+    </button>
+
+  </form>
+
+  @if (locationService.erreur()) {
+    <p>{{ locationService.erreur() }}</p>
+  }
+
+  <h2>Locations existantes</h2>
+
+  @if (locationService.chargement()) {
+    <p>Chargement des locations...</p>
+  }
+
+  @if (!locationService.chargement()) {
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Date début</th>
+          <th>Date fin prévue</th>
+          <th>Date retour</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        @for (location of locationService.locations(); track location.id) {
+
+          <tr>
+            <td>
+              {{ location.clientPrenom }} {{ location.clientNom }}
+            </td>
+
+            <td>{{ location.dateDebut }}</td>
+
+            <td>{{ location.dateFinPrevue }}</td>
+
+            <td>
+              {{ location.dateRetour || '-' }}
+            </td>
+
+            <td>
+              {{ location.montantTotal }} €
+            </td>
+
+            <td>
+              @switch (location.statut) {
+
+                @case ('EN_ATTENTE') {
+                  En attente
+                }
+
+                @case ('EN_COURS') {
+                  En cours
+                }
+
+                @case ('RETOURNEE') {
+                  Retournée
+                }
+
+                @case ('ANNULEE') {
+                  Annulée
+                }
+
+                @default {
+                  {{ location.statut }}
+                }
+
+              }
+            </td>
+
+            <td>
+              @if (location.statut === 'EN_COURS') {
+                <button
+                  type="button"
+                  (click)="retourner(location.id)"
+                >
+                  Retourner
+                </button>
+              }
+            </td>
+          </tr>
+
+        } @empty {
+
+          <tr>
+            <td colspan="7">
+              Aucune location.
+            </td>
+          </tr>
+
+        }
+
+      </tbody>
+    </table>
+  }
+
+</section>
+        @for (location of locationService.locations(); track location.id) {
+          <tr>
+            <td>
+              {{ location.clientPrenom }} {{ location.clientNom }}
+            </td>
+
+            <td>{{ location.dateDebut }}</td>
+
+            <td>{{ location.dateFinPrevue }}</td>
+
+            <td>{{ location.dateRetour || '-' }}</td>
+
+            <td>{{ location.montantTotal }} €</td>
+
+            <td>
+              @switch (location.statut) {
+                @case ('EN_ATTENTE') {
+                  En attente
+                }
+
+                @case ('EN_COURS') {
+                  En cours
+                }
+
+                @case ('RETOURNEE') {
+                  Retournée
+                }
+
+                @case ('ANNULEE') {
+                  Annulée
+                }
+
+                @default {
+                  {{ location.statut }}
+                }
+              }
+            </td>
+
+            <td>
+              @if (location.statut === 'EN_COURS') {
+                <button type="button" (click)="retourner(location.id)">
+                  Retourner
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7">Aucune location.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
