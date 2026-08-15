@@ -10,7 +10,7 @@ import { ClientService } from '../../services/client';
   styleUrl: './clients.css'
 })
 export class Clients implements OnInit {
-  clientService = inject(ClientService);
+  readonly clientService = inject(ClientService);
   private readonly fb = inject(FormBuilder);
 
   formulaire = this.fb.group({
@@ -43,13 +43,22 @@ export class Clients implements OnInit {
 
     const id = this.clientService.clientEnEditionId();
 
+    this.clientService.effacerErreur();
+
     if (id === null) {
       this.clientService.creer(dto).subscribe({
         next: () => {
           this.annuler();
           this.clientService.charger();
         },
-        error: err => console.error(err)
+        error: err => {
+          const message =
+            typeof err.error === 'string'
+              ? err.error
+              : 'Impossible de créer le client.';
+
+          this.clientService.definirErreur(message);
+        }
       });
     } else {
       this.clientService.modifier(id, dto).subscribe({
@@ -57,13 +66,20 @@ export class Clients implements OnInit {
           this.annuler();
           this.clientService.charger();
         },
-        error: err => console.error(err)
+        error: err => {
+          const message =
+            typeof err.error === 'string'
+              ? err.error
+              : 'Impossible de modifier le client.';
+
+          this.clientService.definirErreur(message);
+        }
       });
     }
   }
 
   modifier(client: Client): void {
-    this.clientService.clientEnEditionId.set(client.id);
+    this.clientService.commencerEdition(client.id);
 
     this.formulaire.patchValue({
       nom: client.nom,
@@ -75,27 +91,47 @@ export class Clients implements OnInit {
   }
 
   annuler(): void {
-    this.clientService.clientEnEditionId.set(null);
+    this.clientService.terminerEdition();
     this.formulaire.reset();
   }
 
   desactiver(client: Client): void {
-    if (!confirm(`Désactiver ${client.prenom} ${client.nom} ?`))
+    if (!confirm(`Désactiver ${client.prenom} ${client.nom} ?`)) {
       return;
+    }
+
+    this.clientService.effacerErreur();
 
     this.clientService.desactiver(client.id).subscribe({
       next: () => this.clientService.charger(),
-      error: err => console.error(err)
+      error: err => {
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Impossible de désactiver le client.';
+
+        this.clientService.definirErreur(message);
+      }
     });
   }
 
   reactiver(client: Client): void {
-    if (!confirm(`Réactiver ${client.prenom} ${client.nom} ?`))
+    if (!confirm(`Réactiver ${client.prenom} ${client.nom} ?`)) {
       return;
+    }
+
+    this.clientService.effacerErreur();
 
     this.clientService.reactiver(client.id).subscribe({
       next: () => this.clientService.charger(),
-      error: err => console.error(err)
+      error: err => {
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Impossible de réactiver le client.';
+
+        this.clientService.definirErreur(message);
+      }
     });
   }
 }

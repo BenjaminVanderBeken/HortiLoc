@@ -18,7 +18,7 @@ export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  authService = inject(AuthService);
+  readonly authService = inject(AuthService);
 
   formulaire = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -38,6 +38,8 @@ export class Login {
       motDePasse: valeur.motDePasse ?? ''
     };
 
+    this.authService.effacerErreur();
+
     this.authService.login(dto).subscribe({
       next: resultat => {
         if (resultat.role === 'ADMIN') {
@@ -52,7 +54,7 @@ export class Login {
             ? err.error
             : 'Connexion impossible.';
 
-        this.authService.erreur.set(message);
+        this.authService.definirErreur(message);
       }
     });
   }

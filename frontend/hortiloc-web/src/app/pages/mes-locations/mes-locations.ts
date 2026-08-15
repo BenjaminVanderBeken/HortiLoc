@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { Location } from '../../models/location';
+import { Component, OnInit, inject } from '@angular/core';
 import { LocationService } from '../../services/location';
 
 @Component({
@@ -9,31 +8,9 @@ import { LocationService } from '../../services/location';
   styleUrl: './mes-locations.css'
 })
 export class MesLocations implements OnInit {
-  private readonly locationService = inject(LocationService);
-
-  locations = signal<Location[]>([]);
-  chargement = signal(false);
-  erreur = signal('');
+  readonly locationService = inject(LocationService);
 
   ngOnInit(): void {
-    this.charger();
-  }
-
-  charger(): void {
-    this.chargement.set(true);
-    this.erreur.set('');
-
-    this.locationService.mesLocations().subscribe({
-      next: locations => {
-        this.locations.set(locations);
-        this.chargement.set(false);
-      },
-      error: () => {
-        this.erreur.set(
-          'Impossible de charger vos locations.'
-        );
-        this.chargement.set(false);
-      }
-    });
+    this.locationService.chargerMesLocations();
   }
 }

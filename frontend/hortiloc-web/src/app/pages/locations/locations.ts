@@ -6,6 +6,7 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
+
 import { LocationService } from '../../services/location';
 import { ClientService } from '../../services/client';
 import { MaterielService } from '../../services/materiel';
@@ -20,9 +21,9 @@ import { CreateLocation } from '../../models/create-location';
 export class Locations implements OnInit {
   private readonly fb = inject(FormBuilder);
 
-  locationService = inject(LocationService);
-  clientService = inject(ClientService);
-  materielService = inject(MaterielService);
+  readonly locationService = inject(LocationService);
+  readonly clientService = inject(ClientService);
+  readonly materielService = inject(MaterielService);
 
   formulaire = this.fb.group({
     clientId: [null as number | null, Validators.required],
@@ -76,11 +77,11 @@ export class Locations implements OnInit {
       notes: valeur.notes?.trim() || null,
       details: valeur.details.map(ligne => ({
         materielId: Number(ligne['materielId']),
-quantite: Number(ligne['quantite'])
+        quantite: Number(ligne['quantite'])
       }))
     };
 
-    this.locationService.erreur.set('');
+    this.locationService.effacerErreur();
 
     this.locationService.creer(dto).subscribe({
       next: () => {
@@ -94,7 +95,7 @@ quantite: Number(ligne['quantite'])
             ? err.error
             : 'Impossible de créer la location.';
 
-        this.locationService.erreur.set(message);
+        this.locationService.definirErreur(message);
       }
     });
   }
@@ -104,7 +105,7 @@ quantite: Number(ligne['quantite'])
       return;
     }
 
-    this.locationService.erreur.set('');
+    this.locationService.effacerErreur();
 
     this.locationService.retourner(id).subscribe({
       next: () => {
@@ -117,7 +118,7 @@ quantite: Number(ligne['quantite'])
             ? err.error
             : 'Impossible de retourner cette location.';
 
-        this.locationService.erreur.set(message);
+        this.locationService.definirErreur(message);
       }
     });
   }

@@ -18,8 +18,8 @@ import { Maintenance } from '../../models/maintenance';
 export class Maintenances implements OnInit {
   private readonly fb = inject(FormBuilder);
 
-  maintenanceService = inject(MaintenanceService);
-  materielService = inject(MaterielService);
+  readonly maintenanceService = inject(MaintenanceService);
+  readonly materielService = inject(MaterielService);
 
   formulaire = this.fb.group({
     materielId: [null as number | null, Validators.required],
@@ -57,7 +57,7 @@ export class Maintenances implements OnInit {
   }
 
   modifierMaintenance(maintenance: Maintenance): void {
-    this.maintenanceService.maintenanceEnEditionId.set(
+    this.maintenanceService.commencerEdition(
       maintenance.id
     );
 
@@ -69,7 +69,7 @@ export class Maintenances implements OnInit {
   }
 
   annuler(): void {
-    this.maintenanceService.maintenanceEnEditionId.set(null);
+    this.maintenanceService.terminerEdition();
 
     this.formulaire.reset({
       materielId: null,
@@ -99,7 +99,7 @@ export class Maintenances implements OnInit {
       return;
     }
 
-    this.maintenanceService.erreur.set('');
+    this.maintenanceService.effacerErreur();
 
     this.maintenanceService.supprimer(maintenance.id).subscribe({
       next: () => {
@@ -122,7 +122,7 @@ export class Maintenances implements OnInit {
   }
 
   private creer(dto: CreateMaintenance): void {
-    this.maintenanceService.erreur.set('');
+    this.maintenanceService.effacerErreur();
 
     this.maintenanceService.creer(dto).subscribe({
       next: () => {
@@ -142,7 +142,7 @@ export class Maintenances implements OnInit {
     id: number,
     dto: CreateMaintenance
   ): void {
-    this.maintenanceService.erreur.set('');
+    this.maintenanceService.effacerErreur();
 
     this.maintenanceService.modifier(id, dto).subscribe({
       next: () => {
@@ -162,7 +162,7 @@ export class Maintenances implements OnInit {
     id: number,
     statut: string
   ): void {
-    this.maintenanceService.erreur.set('');
+    this.maintenanceService.effacerErreur();
 
     this.maintenanceService.modifierStatut(id, statut).subscribe({
       next: () => {
@@ -178,7 +178,7 @@ export class Maintenances implements OnInit {
   }
 
   private afficherErreur(
-    err: any,
+    err: { error?: unknown },
     messageParDefaut: string
   ): void {
     const message =
@@ -186,6 +186,6 @@ export class Maintenances implements OnInit {
         ? err.error
         : messageParDefaut;
 
-    this.maintenanceService.erreur.set(message);
+    this.maintenanceService.definirErreur(message);
   }
 }

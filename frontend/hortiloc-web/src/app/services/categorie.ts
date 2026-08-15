@@ -11,23 +11,28 @@ export class CategorieService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:5177/api/categories';
 
-  categories = signal<Categorie[]>([]);
-  chargement = signal(false);
-  erreur = signal('');
-  categorieEnEditionId = signal<number | null>(null);
+  private readonly _categories = signal<Categorie[]>([]);
+  private readonly _chargement = signal(false);
+  private readonly _erreur = signal('');
+  private readonly _categorieEnEditionId = signal<number | null>(null);
+
+  readonly categories = this._categories.asReadonly();
+  readonly chargement = this._chargement.asReadonly();
+  readonly erreur = this._erreur.asReadonly();
+  readonly categorieEnEditionId = this._categorieEnEditionId.asReadonly();
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set('');
+    this._chargement.set(true);
+    this._erreur.set('');
 
     this.http.get<Categorie[]>(this.apiUrl).subscribe({
       next: categories => {
-        this.categories.set(categories);
-        this.chargement.set(false);
+        this._categories.set(categories);
+        this._chargement.set(false);
       },
       error: () => {
-        this.erreur.set('Impossible de charger les catégories.');
-        this.chargement.set(false);
+        this._erreur.set('Impossible de charger les catégories.');
+        this._chargement.set(false);
       }
     });
   }
@@ -37,11 +42,16 @@ export class CategorieService {
   }
 
   modifier(id: number, dto: SaveCategorie): Observable<Categorie> {
-    return this.http.put<Categorie>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<Categorie>(
+      `${this.apiUrl}/${id}`,
+      dto
+    );
   }
 
   desactiver(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   reactiver(id: number): Observable<void> {
@@ -49,5 +59,21 @@ export class CategorieService {
       `${this.apiUrl}/${id}/reactiver`,
       {}
     );
+  }
+
+  commencerEdition(id: number): void {
+    this._categorieEnEditionId.set(id);
+  }
+
+  terminerEdition(): void {
+    this._categorieEnEditionId.set(null);
+  }
+
+  effacerErreur(): void {
+    this._erreur.set('');
+  }
+
+  definirErreur(message: string): void {
+    this._erreur.set(message);
   }
 }

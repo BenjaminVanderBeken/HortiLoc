@@ -17,7 +17,7 @@ import { SaveCategorie } from '../../models/save-categorie';
 export class Categories implements OnInit {
   private readonly fb = inject(FormBuilder);
 
-  categorieService = inject(CategorieService);
+  readonly categorieService = inject(CategorieService);
 
   formulaire = this.fb.group({
     nom: ['', Validators.required],
@@ -43,6 +43,8 @@ export class Categories implements OnInit {
 
     const id = this.categorieService.categorieEnEditionId();
 
+    this.categorieService.effacerErreur();
+
     if (id === null) {
       this.creer(dto);
     } else {
@@ -51,7 +53,7 @@ export class Categories implements OnInit {
   }
 
   modifierCategorie(categorie: Categorie): void {
-    this.categorieService.categorieEnEditionId.set(categorie.id);
+    this.categorieService.commencerEdition(categorie.id);
 
     this.formulaire.patchValue({
       nom: categorie.nom,
@@ -60,7 +62,8 @@ export class Categories implements OnInit {
   }
 
   annuler(): void {
-    this.categorieService.categorieEnEditionId.set(null);
+    this.categorieService.terminerEdition();
+
     this.formulaire.reset({
       nom: '',
       description: ''
@@ -72,10 +75,12 @@ export class Categories implements OnInit {
       return;
     }
 
+    this.categorieService.effacerErreur();
+
     this.categorieService.desactiver(categorie.id).subscribe({
       next: () => this.categorieService.charger(),
       error: () => {
-        this.categorieService.erreur.set(
+        this.categorieService.definirErreur(
           'Impossible de désactiver la catégorie.'
         );
       }
@@ -87,10 +92,12 @@ export class Categories implements OnInit {
       return;
     }
 
+    this.categorieService.effacerErreur();
+
     this.categorieService.reactiver(categorie.id).subscribe({
       next: () => this.categorieService.charger(),
       error: () => {
-        this.categorieService.erreur.set(
+        this.categorieService.definirErreur(
           'Impossible de réactiver la catégorie.'
         );
       }
@@ -104,7 +111,10 @@ export class Categories implements OnInit {
         this.categorieService.charger();
       },
       error: err => {
-        this.afficherErreur(err, 'Impossible de créer la catégorie.');
+        this.afficherErreur(
+          err,
+          'Impossible de créer la catégorie.'
+        );
       }
     });
   }
@@ -116,17 +126,23 @@ export class Categories implements OnInit {
         this.categorieService.charger();
       },
       error: err => {
-        this.afficherErreur(err, 'Impossible de modifier la catégorie.');
+        this.afficherErreur(
+          err,
+          'Impossible de modifier la catégorie.'
+        );
       }
     });
   }
 
-  private afficherErreur(err: any, messageParDefaut: string): void {
+  private afficherErreur(
+    err: { error?: unknown },
+    messageParDefaut: string
+  ): void {
     const message =
       typeof err.error === 'string'
         ? err.error
         : messageParDefaut;
 
-    this.categorieService.erreur.set(message);
+    this.categorieService.definirErreur(message);
   }
 }

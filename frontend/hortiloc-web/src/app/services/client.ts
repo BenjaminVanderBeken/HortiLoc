@@ -11,23 +11,28 @@ export class ClientService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:5177/api/clients';
 
-  clients = signal<Client[]>([]);
-  chargement = signal(false);
-  erreur = signal('');
-  clientEnEditionId = signal<number | null>(null);
+  private readonly _clients = signal<Client[]>([]);
+  private readonly _chargement = signal(false);
+  private readonly _erreur = signal('');
+  private readonly _clientEnEditionId = signal<number | null>(null);
+
+  readonly clients = this._clients.asReadonly();
+  readonly chargement = this._chargement.asReadonly();
+  readonly erreur = this._erreur.asReadonly();
+  readonly clientEnEditionId = this._clientEnEditionId.asReadonly();
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set('');
+    this._chargement.set(true);
+    this._erreur.set('');
 
     this.http.get<Client[]>(this.apiUrl).subscribe({
       next: clients => {
-        this.clients.set(clients);
-        this.chargement.set(false);
+        this._clients.set(clients);
+        this._chargement.set(false);
       },
       error: () => {
-        this.erreur.set('Impossible de charger les clients.');
-        this.chargement.set(false);
+        this._erreur.set('Impossible de charger les clients.');
+        this._chargement.set(false);
       }
     });
   }
@@ -45,6 +50,25 @@ export class ClientService {
   }
 
   reactiver(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/reactiver`, {});
+    return this.http.patch<void>(
+      `${this.apiUrl}/${id}/reactiver`,
+      {}
+    );
+  }
+
+  commencerEdition(id: number): void {
+    this._clientEnEditionId.set(id);
+  }
+
+  terminerEdition(): void {
+    this._clientEnEditionId.set(null);
+  }
+
+  effacerErreur(): void {
+    this._erreur.set('');
+  }
+
+  definirErreur(message: string): void {
+    this._erreur.set(message);
   }
 }

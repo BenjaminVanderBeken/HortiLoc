@@ -11,8 +11,8 @@ import { CategorieService } from '../../services/categorie';
   styleUrl: './materiels.css'
 })
 export class Materiels implements OnInit {
-  materielService = inject(MaterielService);
-  categorieService = inject(CategorieService);
+  readonly materielService = inject(MaterielService);
+  readonly categorieService = inject(CategorieService);
 
   private readonly fb = inject(FormBuilder);
 
@@ -47,13 +47,22 @@ export class Materiels implements OnInit {
 
     const id = this.materielService.materielEnEditionId();
 
+    this.materielService.effacerErreur();
+
     if (id === null) {
       this.materielService.creer(dto).subscribe({
         next: () => {
           this.annuler();
           this.materielService.charger();
         },
-        error: err => console.error(err)
+        error: err => {
+          const message =
+            typeof err.error === 'string'
+              ? err.error
+              : 'Impossible de créer le matériel.';
+
+          this.materielService.definirErreur(message);
+        }
       });
     } else {
       this.materielService.modifier(id, dto).subscribe({
@@ -61,13 +70,20 @@ export class Materiels implements OnInit {
           this.annuler();
           this.materielService.charger();
         },
-        error: err => console.error(err)
+        error: err => {
+          const message =
+            typeof err.error === 'string'
+              ? err.error
+              : 'Impossible de modifier le matériel.';
+
+          this.materielService.definirErreur(message);
+        }
       });
     }
   }
 
   modifier(materiel: Materiel): void {
-    this.materielService.materielEnEditionId.set(materiel.id);
+    this.materielService.commencerEdition(materiel.id);
 
     this.formulaire.patchValue({
       categorieId: materiel.categorieId,
@@ -79,7 +95,7 @@ export class Materiels implements OnInit {
   }
 
   annuler(): void {
-    this.materielService.materielEnEditionId.set(null);
+    this.materielService.terminerEdition();
 
     this.formulaire.reset({
       categorieId: null,
@@ -91,22 +107,42 @@ export class Materiels implements OnInit {
   }
 
   desactiver(materiel: Materiel): void {
-    if (!confirm(`Désactiver ${materiel.nom} ?`))
+    if (!confirm(`Désactiver ${materiel.nom} ?`)) {
       return;
+    }
+
+    this.materielService.effacerErreur();
 
     this.materielService.desactiver(materiel.id).subscribe({
       next: () => this.materielService.charger(),
-      error: err => console.error(err)
+      error: err => {
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Impossible de désactiver le matériel.';
+
+        this.materielService.definirErreur(message);
+      }
     });
   }
 
   reactiver(materiel: Materiel): void {
-    if (!confirm(`Réactiver ${materiel.nom} ?`))
+    if (!confirm(`Réactiver ${materiel.nom} ?`)) {
       return;
+    }
+
+    this.materielService.effacerErreur();
 
     this.materielService.reactiver(materiel.id).subscribe({
       next: () => this.materielService.charger(),
-      error: err => console.error(err)
+      error: err => {
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Impossible de réactiver le matériel.';
+
+        this.materielService.definirErreur(message);
+      }
     });
   }
 }

@@ -1,21 +1,23 @@
-<section>
+<section class="mes-locations-page">
   <h1>Mes locations</h1>
 
-  @if (chargement()) {
-    <p>Chargement de vos locations...</p>
+  @if (locationService.chargementMesLocations()) {
+    <p>Chargement...</p>
   }
 
-  @if (erreur()) {
-    <p>{{ erreur() }}</p>
+  @if (locationService.erreurMesLocations()) {
+    <p>{{ locationService.erreurMesLocations() }}</p>
   }
 
-  @if (!chargement() && !erreur()) {
+  @if (
+    !locationService.chargementMesLocations() &&
+    !locationService.erreurMesLocations()
+  ) {
     <table>
       <thead>
         <tr>
           <th>Date début</th>
           <th>Date fin prévue</th>
-          <th>Date retour</th>
           <th>Montant</th>
           <th>Statut</th>
           <th>Notes</th>
@@ -23,44 +25,36 @@
       </thead>
 
       <tbody>
-        @for (location of locations(); track location.id) {
+        @for (
+          location of locationService.mesLocationsClient();
+          track location.id
+        ) {
           <tr>
             <td>{{ location.dateDebut }}</td>
             <td>{{ location.dateFinPrevue }}</td>
-            <td>{{ location.dateRetour || '-' }}</td>
             <td>{{ location.montantTotal }} €</td>
 
             <td>
               @switch (location.statut) {
                 @case ('EN_ATTENTE') {
-                  En attente
+                  <span>En attente</span>
                 }
 
                 @case ('EN_COURS') {
-                  En cours
+                  <span>En cours</span>
                 }
 
                 @case ('RETOURNEE') {
-                  Retournée
+                  <span>Retournée</span>
                 }
 
                 @case ('ANNULEE') {
-                  Annulée
-                }
-
-                @default {
-                  {{ location.statut }}
+                  <span>Annulée</span>
                 }
               }
             </td>
 
             <td>{{ location.notes || '-' }}</td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="6">
-              Vous n'avez aucune location.
-            </td>
           </tr>
         }
       </tbody>

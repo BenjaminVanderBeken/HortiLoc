@@ -11,23 +11,28 @@ export class MaterielService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:5177/api/materiels';
 
-  materiels = signal<Materiel[]>([]);
-  chargement = signal(false);
-  erreur = signal('');
-  materielEnEditionId = signal<number | null>(null);
+  private readonly _materiels = signal<Materiel[]>([]);
+  private readonly _chargement = signal(false);
+  private readonly _erreur = signal('');
+  private readonly _materielEnEditionId = signal<number | null>(null);
+
+  readonly materiels = this._materiels.asReadonly();
+  readonly chargement = this._chargement.asReadonly();
+  readonly erreur = this._erreur.asReadonly();
+  readonly materielEnEditionId = this._materielEnEditionId.asReadonly();
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set('');
+    this._chargement.set(true);
+    this._erreur.set('');
 
     this.http.get<Materiel[]>(this.apiUrl).subscribe({
       next: materiels => {
-        this.materiels.set(materiels);
-        this.chargement.set(false);
+        this._materiels.set(materiels);
+        this._chargement.set(false);
       },
       error: () => {
-        this.erreur.set('Impossible de charger le matériel.');
-        this.chargement.set(false);
+        this._erreur.set('Impossible de charger le matériel.');
+        this._chargement.set(false);
       }
     });
   }
@@ -37,14 +42,38 @@ export class MaterielService {
   }
 
   modifier(id: number, materiel: SaveMateriel): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, materiel);
+    return this.http.put<void>(
+      `${this.apiUrl}/${id}`,
+      materiel
+    );
   }
 
   desactiver(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   reactiver(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/reactiver`, {});
+    return this.http.patch<void>(
+      `${this.apiUrl}/${id}/reactiver`,
+      {}
+    );
+  }
+
+  commencerEdition(id: number): void {
+    this._materielEnEditionId.set(id);
+  }
+
+  terminerEdition(): void {
+    this._materielEnEditionId.set(null);
+  }
+
+  effacerErreur(): void {
+    this._erreur.set('');
+  }
+
+  definirErreur(message: string): void {
+    this._erreur.set(message);
   }
 }
