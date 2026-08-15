@@ -1,10 +1,119 @@
 # HortiLoc
 
-HortiLoc est une application web de gestion de location de matériel horticole.
+HortiLoc est une application web de gestion de location de matériel horticole réalisée avec Angular, ASP.NET Core, Dapper et MySQL.
 
-L'application permet de gérer les clients, les catégories de matériel, le matériel horticole, les locations, les retours et les maintenances.
+L'application permet de gérer les clients, les catégories, le matériel horticole, les locations, les retours et les maintenances.
 
-## 1. Technologies utilisées
+Elle intègre également une authentification JWT avec deux rôles :
+
+- `ADMIN`
+- `CLIENT`
+
+---
+
+## 1. Fonctionnalités principales
+
+### Gestion des clients
+
+L'administrateur peut :
+
+- afficher les clients ;
+- ajouter un client ;
+- modifier un client ;
+- désactiver un client ;
+- réactiver un client ;
+- vérifier l'unicité de l'adresse e-mail.
+
+### Gestion des catégories
+
+L'administrateur peut :
+
+- afficher les catégories ;
+- ajouter une catégorie ;
+- modifier une catégorie ;
+- désactiver une catégorie ;
+- réactiver une catégorie.
+
+Les catégories utilisées dans la gestion du matériel sont chargées depuis MySQL via l'API.
+
+### Gestion du matériel horticole
+
+L'administrateur peut :
+
+- afficher le matériel ;
+- ajouter un matériel ;
+- modifier un matériel ;
+- désactiver un matériel ;
+- réactiver un matériel ;
+- définir un prix journalier ;
+- gérer la quantité totale ;
+- gérer la quantité disponible ;
+- associer le matériel à une catégorie.
+
+### Gestion des locations
+
+L'administrateur peut :
+
+- créer une location ;
+- sélectionner un client actif ;
+- choisir un ou plusieurs matériels ;
+- définir les quantités ;
+- définir une date de début ;
+- définir une date de fin prévue ;
+- ajouter des notes.
+
+Le backend :
+
+- vérifie le stock disponible ;
+- calcule automatiquement le montant total ;
+- enregistre les détails de la location ;
+- diminue automatiquement les quantités disponibles.
+
+### Retour du matériel
+
+Lors du retour d'une location :
+
+- le statut passe à `RETOURNEE` ;
+- la date de retour est enregistrée ;
+- les quantités de matériel sont remises en stock.
+
+Le retour utilise une transaction Dapper afin de garantir la cohérence des données.
+
+### Gestion des maintenances
+
+L'administrateur peut :
+
+- créer une maintenance ;
+- modifier une maintenance ;
+- supprimer une maintenance planifiée ;
+- démarrer une maintenance ;
+- terminer une maintenance.
+
+Les statuts disponibles sont :
+
+```text
+PLANIFIEE
+EN_COURS
+TERMINEE
+```
+
+Lorsqu'une maintenance est terminée, sa date de fin est enregistrée automatiquement.
+
+### Espace client
+
+Un utilisateur avec le rôle `CLIENT` dispose d'un espace :
+
+```text
+Mes locations
+```
+
+Il peut consulter uniquement les locations associées à son propre compte client.
+
+Le `clientId` est récupéré directement depuis le token JWT côté backend.
+
+---
+
+## 2. Technologies utilisées
 
 ### Backend
 
@@ -13,28 +122,36 @@ L'application permet de gérer les clients, les catégories de matériel, le mat
 - .NET 10
 - Dapper
 - MySql.Data
-- MySQL 9.1
+- JWT Bearer Authentication
+- ASP.NET Core PasswordHasher
 
 ### Frontend
 
-- Angular 21
+- Angular
 - TypeScript
 - Reactive Forms
 - HttpClient
-- Signals Angular
-- Syntaxe moderne Angular :
-  - `@if`
-  - `@for`
-  - `@switch`
+- Angular Signals
+- Angular Router
+- Guards
+- HTTP Interceptor
+
+Syntaxe Angular moderne utilisée :
+
+```text
+@if
+@for
+@switch
+```
 
 ### Base de données
 
 - MySQL
-- Scripts SQL fournis dans le dossier `database`
+- scripts SQL fournis avec le projet
 
 ---
 
-## 2. Architecture du projet
+## 3. Architecture
 
 Le backend respecte une architecture en couches.
 
@@ -42,8 +159,10 @@ Le backend respecte une architecture en couches.
 HortiLoc
 │
 ├── backend
+│   │
 │   ├── HortiLoc.API
-│   │   └── Controllers
+│   │   ├── Controllers
+│   │   └── Services
 │   │
 │   ├── HortiLoc.Core
 │   │   ├── DTOs
@@ -53,7 +172,8 @@ HortiLoc
 │   │
 │   └── HortiLoc.Infrastructure
 │       ├── Data
-│       └── Repositories
+│       ├── Repositories
+│       └── Services
 │
 ├── frontend
 │   └── hortiloc-web
@@ -63,10 +183,13 @@ HortiLoc
 │   ├── 02-create-tables.sql
 │   └── 03-insert-test-data.sql
 │
+├── HortiLoc.slnx
 └── README.md
 ```
 
-### Flux général
+---
+
+## 4. Flux général de l'application
 
 ```text
 Composant Angular
@@ -90,87 +213,127 @@ MySQL
 
 Les contrôleurs ne contiennent pas de requêtes SQL.
 
-Les accès à la base de données sont réalisés dans les repositories de la couche Infrastructure avec Dapper.
+Toutes les requêtes SQL sont centralisées dans les repositories de la couche Infrastructure.
 
 ---
 
-## 3. Fonctionnalités
+## 5. Authentification
 
-### Gestion des clients
+L'application utilise une authentification JWT.
 
-- afficher les clients ;
-- ajouter un client ;
-- modifier un client ;
-- désactiver un client ;
-- réactiver un client ;
-- vérification de l'unicité de l'adresse e-mail.
+Le flux de connexion est :
 
-### Gestion des catégories
+```text
+Page Login Angular
+        ↓
+AuthService Angular
+        ↓
+POST /api/auth/login
+        ↓
+AuthController
+        ↓
+AuthService Core
+        ↓
+UtilisateurRepository
+        ↓
+Dapper / MySQL
+        ↓
+Vérification du mot de passe
+        ↓
+Création du JWT
+        ↓
+Retour du token vers Angular
+```
 
-- afficher les catégories ;
-- ajouter une catégorie ;
-- modifier une catégorie ;
-- désactiver une catégorie ;
-- réactiver une catégorie.
+Angular stocke ensuite les informations d'authentification et un interceptor ajoute automatiquement :
 
-Les catégories utilisées dans la gestion du matériel sont chargées depuis MySQL via l'API.
+```text
+Authorization: Bearer <token>
+```
 
-### Gestion du matériel horticole
-
-- afficher le matériel ;
-- ajouter un matériel ;
-- modifier un matériel ;
-- désactiver un matériel ;
-- réactiver un matériel ;
-- gestion de la quantité totale ;
-- gestion de la quantité disponible ;
-- association du matériel à une catégorie ;
-- prix journalier.
-
-### Gestion des locations
-
-- sélectionner un client actif ;
-- choisir un ou plusieurs matériels ;
-- définir la quantité ;
-- définir les dates de location ;
-- calcul automatique du montant par le backend ;
-- vérification du stock disponible ;
-- diminution automatique du stock lors d'une location.
-
-### Retour du matériel
-
-Lors du retour d'une location :
-
-- le statut passe à `RETOURNEE` ;
-- la date de retour est enregistrée ;
-- les quantités de matériel sont remises automatiquement en stock.
-
-La mise à jour est effectuée dans une transaction Dapper.
-
-### Gestion des maintenances
-
-- créer une maintenance ;
-- associer une maintenance à un matériel ;
-- statut `PLANIFIEE` ;
-- démarrer une maintenance ;
-- statut `EN_COURS` ;
-- terminer une maintenance ;
-- statut `TERMINEE` ;
-- enregistrement automatique de la date de fin.
+aux requêtes HTTP.
 
 ---
 
-## 4. Prérequis
+## 6. Rôles
+
+### ADMIN
+
+Le rôle `ADMIN` peut accéder aux pages :
+
+```text
+Clients
+Catégories
+Matériel
+Locations
+Maintenances
+```
+
+### CLIENT
+
+Le rôle `CLIENT` peut accéder uniquement à :
+
+```text
+Mes locations
+```
+
+Les routes Angular sont protégées avec des guards.
+
+Les endpoints sensibles de l'API sont également protégés avec :
+
+```csharp
+[Authorize(Roles = "ADMIN")]
+```
+
+ou :
+
+```csharp
+[Authorize(Roles = "CLIENT")]
+```
+
+La sécurité ne repose donc pas uniquement sur le frontend.
+
+---
+
+## 7. Comptes de démonstration
+
+Les comptes de démonstration sont créés automatiquement au démarrage de l'API en environnement de développement s'ils n'existent pas encore.
+
+### Administrateur
+
+```text
+Email : admin@hortiloc.be
+Mot de passe : Admin123!
+Rôle : ADMIN
+```
+
+### Client
+
+```text
+Email : client@hortiloc.be
+Mot de passe : Client123!
+Rôle : CLIENT
+Client associé : id 1
+```
+
+Les mots de passe sont stockés sous forme hashée dans MySQL.
+
+Ils ne sont pas enregistrés en clair dans la table `utilisateurs`.
+
+---
+
+## 8. Prérequis
 
 Avant de lancer le projet, installer :
 
 - .NET SDK 10 ;
-- Node.js et npm ;
+- Node.js ;
+- npm ;
 - Angular CLI ;
 - MySQL ;
 - Git.
 
-Vérification :
+Pour vérifier les installations :
 
 ```powershell
 dotnet --version
@@ -183,32 +346,48 @@ git --version
 
 ---
 
-## 5. Installation du projet
+## 9. Récupérer le projet
 
-Cloner le dépôt GitHub :
+Avec Git :
 
 ```powershell
 git clone <URL_DU_DEPOT_GITHUB>
 cd HortiLoc
 ```
 
-Si le projet est fourni sous forme de ZIP, extraire simplement le dossier puis ouvrir un terminal dans le dossier `HortiLoc`.
+Remplacer :
+
+```text
+<URL_DU_DEPOT_GITHUB>
+```
+
+par l'URL publique du dépôt GitHub HortiLoc.
+
+Si le projet est fourni sous forme de ZIP, extraire simplement le dossier.
 
 ---
 
-## 6. Création de la base de données
+## 10. Création de la base de données
 
-Démarrer le serveur MySQL.
+Démarrer MySQL.
 
-Depuis PowerShell :
+Puis lancer :
 
 ```powershell
 mysql --default-character-set=utf8mb4 -u root -p
 ```
 
-Entrer le mot de passe MySQL.
+Entrer le mot de passe MySQL si nécessaire.
 
-Puis dans MySQL :
+Dans MySQL, exécuter les trois scripts dans cet ordre :
+
+```sql
+SOURCE C:/chemin/vers/HortiLoc/database/01-create-database.sql;
+SOURCE C:/chemin/vers/HortiLoc/database/02-create-tables.sql;
+SOURCE C:/chemin/vers/HortiLoc/database/03-insert-test-data.sql;
+```
+
+Exemple sous Windows :
 
 ```sql
 SOURCE C:/Users/Benja/HortiLoc/database/01-create-database.sql;
@@ -216,25 +395,18 @@ SOURCE C:/Users/Benja/HortiLoc/database/02-create-tables.sql;
 SOURCE C:/Users/Benja/HortiLoc/database/03-insert-test-data.sql;
 ```
 
-Les scripts :
+Les scripts permettent de :
 
 ```text
 01-create-database.sql
-```
+→ créer la base hortiloc
 
-crée la base `hortiloc`.
-
-```text
 02-create-tables.sql
-```
+→ créer les tables, relations et contraintes
 
-crée les tables et les relations.
-
-```text
 03-insert-test-data.sql
+→ ajouter les données de démonstration
 ```
-
-insère les données de démonstration.
 
 Pour quitter MySQL :
 
@@ -244,9 +416,9 @@ exit;
 
 ---
 
-## 7. Configuration de la connexion MySQL
+## 11. Configuration MySQL
 
-Le fichier de configuration du backend se trouve dans :
+La chaîne de connexion se trouve dans :
 
 ```text
 backend/HortiLoc.API/appsettings.json
@@ -262,9 +434,13 @@ Configuration utilisée pendant le développement :
 }
 ```
 
-Si l'utilisateur `root` possède un mot de passe, modifier la valeur `Password`.
+Si l'utilisateur MySQL `root` possède un mot de passe, modifier :
 
-Exemple :
+```text
+Password=;
+```
+
+par exemple :
 
 ```text
 Password=monMotDePasse;
@@ -272,9 +448,35 @@ Password=monMotDePasse;
 
 ---
 
-## 8. Installation des dépendances Angular
+## 12. Configuration JWT
 
-Depuis la racine du projet :
+La configuration JWT se trouve également dans :
+
+```text
+backend/HortiLoc.API/appsettings.json
+```
+
+Exemple :
+
+```json
+{
+  "Jwt": {
+    "Key": "HortiLoc-Development-Jwt-Key-2026-Change-Me-123456789",
+    "Issuer": "HortiLoc.API",
+    "Audience": "HortiLoc.Angular"
+  }
+}
+```
+
+Cette configuration est prévue pour l'environnement local et scolaire du projet.
+
+Dans une application de production, la clé JWT ne devrait pas être stockée directement dans le dépôt Git.
+
+---
+
+## 13. Installer les dépendances Angular
+
+Depuis le dossier du frontend :
 
 ```powershell
 cd frontend\hortiloc-web
@@ -283,14 +485,11 @@ npm install
 
 ---
 
-## 9. Lancer le backend
+## 14. Lancer le backend
 
-Ouvrir un premier terminal.
-
-Depuis la racine du projet :
+Ouvrir un premier terminal à la racine du projet :
 
 ```powershell
-cd C:\Users\Benja\HortiLoc
 dotnet run --project backend\HortiLoc.API
 ```
 
@@ -306,14 +505,16 @@ Exemple :
 http://localhost:5177/api/clients
 ```
 
+Les routes protégées nécessitent un token JWT valide.
+
 ---
 
-## 10. Lancer le frontend Angular
+## 15. Lancer Angular
 
-Ouvrir un deuxième terminal.
+Ouvrir un deuxième terminal :
 
 ```powershell
-cd C:\Users\Benja\HortiLoc\frontend\hortiloc-web
+cd frontend\hortiloc-web
 ng serve
 ```
 
@@ -323,118 +524,169 @@ L'application est accessible sur :
 http://localhost:4200
 ```
 
----
-
-## 11. Pages principales
+La page de connexion est :
 
 ```text
-http://localhost:4200/clients
-http://localhost:4200/categories
-http://localhost:4200/materiels
-http://localhost:4200/locations
-http://localhost:4200/maintenances
+http://localhost:4200/login
 ```
-
-La navigation entre ces pages est également disponible directement dans l'interface.
 
 ---
 
-## 12. Compiler le backend
+## 16. Pages Angular
 
-Depuis la racine :
-
-```powershell
-cd C:\Users\Benja\HortiLoc
-dotnet build
-```
-
-Le projet doit se compiler sans erreur.
-
----
-
-## 13. Compiler Angular
-
-```powershell
-cd C:\Users\Benja\HortiLoc\frontend\hortiloc-web
-ng build
-```
-
-Le build Angular doit se terminer par :
+### Administrateur
 
 ```text
-Application bundle generation complete.
+/login
+/clients
+/categories
+/materiels
+/locations
+/maintenances
+```
+
+### Client
+
+```text
+/login
+/mes-locations
 ```
 
 ---
 
-## 14. Principales règles métier
+## 17. Principales routes API
+
+### Authentification
+
+```text
+POST /api/auth/login
+```
 
 ### Clients
 
-Une adresse e-mail ne peut pas être utilisée par plusieurs clients.
+```text
+GET    /api/clients
+GET    /api/clients/{id}
+POST   /api/clients
+PUT    /api/clients/{id}
+DELETE /api/clients/{id}
+PATCH  /api/clients/{id}/reactiver
+```
+
+### Catégories
+
+```text
+GET    /api/categories
+GET    /api/categories/{id}
+POST   /api/categories
+PUT    /api/categories/{id}
+DELETE /api/categories/{id}
+PATCH  /api/categories/{id}/reactiver
+```
 
 ### Matériel
 
-La quantité totale doit être supérieure à zéro.
-
-Le prix journalier ne peut pas être négatif.
-
-La quantité totale ne peut pas devenir inférieure à la quantité actuellement louée.
+```text
+GET    /api/materiels
+GET    /api/materiels/{id}
+POST   /api/materiels
+PUT    /api/materiels/{id}
+DELETE /api/materiels/{id}
+PATCH  /api/materiels/{id}/reactiver
+```
 
 ### Locations
 
-Une location doit contenir au moins un matériel.
+Routes administrateur :
 
-Le client doit exister et être actif.
+```text
+GET   /api/locations
+GET   /api/locations/{id}
+POST  /api/locations
+PATCH /api/locations/{id}/retour
+```
 
-Le matériel doit exister et être actif.
+Route client :
 
-La quantité demandée ne peut pas dépasser le stock disponible.
-
-La date de fin prévue ne peut pas être antérieure à la date de début.
-
-Le montant d'une location est calculé par le backend.
-
-### Retours
-
-Une location déjà retournée ne peut pas être retournée une seconde fois.
-
-Une location annulée ne peut pas être retournée.
-
-Un retour rétablit automatiquement les quantités disponibles du matériel.
+```text
+GET /api/locations/mes-locations
+```
 
 ### Maintenances
 
-Une maintenance doit être associée à un matériel existant et actif.
-
-Les statuts possibles sont :
-
 ```text
-PLANIFIEE
-EN_COURS
-TERMINEE
+GET    /api/maintenances
+GET    /api/maintenances/{id}
+POST   /api/maintenances
+PUT    /api/maintenances/{id}
+PATCH  /api/maintenances/{id}/statut
+DELETE /api/maintenances/{id}
 ```
-
-Une maintenance terminée reçoit automatiquement une date de fin.
-
-Une maintenance prévue dans le futur ne peut pas être démarrée avant sa date de début.
 
 ---
 
-## 15. Transactions
+## 18. Règles métier principales
 
-La création et le retour des locations utilisent des transactions afin de garantir la cohérence des données.
+### Clients
 
-Exemple lors de la création d'une location :
+- le nom et le prénom sont obligatoires ;
+- l'adresse e-mail doit être unique ;
+- un client peut être désactivé puis réactivé.
+
+### Catégories
+
+- le nom est obligatoire ;
+- le nom doit être unique ;
+- une catégorie peut être désactivée puis réactivée.
+
+### Matériel
+
+- le matériel doit être associé à une catégorie ;
+- le prix journalier ne peut pas être négatif ;
+- la quantité totale doit être supérieure à zéro ;
+- la quantité totale ne peut pas devenir inférieure à la quantité actuellement louée.
+
+### Locations
+
+- un client doit exister et être actif ;
+- une location doit contenir au moins un matériel ;
+- le matériel doit exister et être actif ;
+- la quantité demandée ne peut pas dépasser le stock disponible ;
+- la date de fin prévue ne peut pas être antérieure à la date de début ;
+- le montant est calculé côté backend.
+
+### Retours
+
+- une location déjà retournée ne peut pas être retournée une seconde fois ;
+- une location annulée ne peut pas être retournée ;
+- un retour remet automatiquement le matériel en stock.
+
+### Maintenances
+
+- le matériel doit exister et être actif ;
+- une maintenance terminée ne peut plus être modifiée ;
+- seule une maintenance `PLANIFIEE` peut être supprimée ;
+- une maintenance future ne peut pas être démarrée avant sa date de début ;
+- lorsqu'une maintenance devient `TERMINEE`, la date de fin est enregistrée automatiquement.
+
+---
+
+## 19. Transactions Dapper
+
+La création et le retour des locations utilisent des transactions.
+
+### Création d'une location
 
 ```text
-Création de la location
+BEGIN TRANSACTION
         ↓
-Création des détails
+Création de la location
         ↓
 Vérification du stock
         ↓
-Diminution du stock
+Création des détails
+        ↓
+Diminution des quantités disponibles
         ↓
 COMMIT
 ```
@@ -445,13 +697,33 @@ En cas d'erreur :
 ROLLBACK
 ```
 
-Aucune modification partielle n'est alors conservée.
+### Retour d'une location
+
+```text
+BEGIN TRANSACTION
+        ↓
+Lecture des détails
+        ↓
+Remise des quantités en stock
+        ↓
+Statut = RETOURNEE
+        ↓
+Enregistrement dateRetour
+        ↓
+COMMIT
+```
 
 ---
 
-## 16. Données de démonstration
+## 20. Données de démonstration
 
-Le script `03-insert-test-data.sql` crée notamment :
+Le script :
+
+```text
+database/03-insert-test-data.sql
+```
+
+crée notamment :
 
 - 3 clients ;
 - 5 catégories ;
@@ -460,23 +732,58 @@ Le script `03-insert-test-data.sql` crée notamment :
 - des détails de locations ;
 - une maintenance.
 
-Ces données permettent de tester directement l'application après l'installation.
+Les comptes de connexion sont ensuite créés automatiquement par le backend en environnement de développement.
 
 ---
 
-## 17. Commandes de lancement rapide
+## 21. Compiler le backend
 
-### Terminal 1 - Backend
+Depuis la racine :
 
 ```powershell
-cd C:\Users\Benja\HortiLoc
+dotnet build
+```
+
+Le projet doit se compiler sans erreur.
+
+---
+
+## 22. Compiler Angular
+
+Depuis :
+
+```powershell
+cd frontend\hortiloc-web
+```
+
+lancer :
+
+```powershell
+ng build
+```
+
+Le résultat attendu contient :
+
+```text
+Application bundle generation complete.
+```
+
+---
+
+## 23. Lancement rapide
+
+### Terminal 1 - API
+
+Depuis la racine :
+
+```powershell
 dotnet run --project backend\HortiLoc.API
 ```
 
-### Terminal 2 - Frontend
+### Terminal 2 - Angular
 
 ```powershell
-cd C:\Users\Benja\HortiLoc\frontend\hortiloc-web
+cd frontend\hortiloc-web
 ng serve
 ```
 
@@ -488,10 +795,34 @@ http://localhost:4200
 
 ---
 
-## 18. Auteur
+## 24. Sécurité
+
+Le projet applique plusieurs niveaux de sécurité :
+
+- hash des mots de passe ;
+- authentification JWT ;
+- expiration du token ;
+- validation de la signature JWT ;
+- validation de l'émetteur ;
+- validation de l'audience ;
+- rôles `ADMIN` et `CLIENT` ;
+- guards Angular ;
+- interceptor HTTP ;
+- `[Authorize]` côté API ;
+- récupération du `clientId` directement depuis le JWT pour l'espace client.
+
+Un client ne peut donc pas utiliser l'interface ou l'API pour accéder aux fonctionnalités réservées à l'administrateur.
+
+---
+
+## 25. Auteur
 
 Projet réalisé dans le cadre du cours Angular & .NET.
 
-Application : **HortiLoc**
+**Application : HortiLoc**
 
-Sujet : gestion de location de matériel horticole.
+Sujet :
+
+```text
+Gestion de location de matériel horticole
+```
