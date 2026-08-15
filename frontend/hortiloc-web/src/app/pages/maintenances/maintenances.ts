@@ -7,6 +7,7 @@ import {
 import { MaintenanceService } from '../../services/maintenance';
 import { MaterielService } from '../../services/materiel';
 import { CreateMaintenance } from '../../models/create-maintenance';
+import { Maintenance } from '../../models/maintenance';
 
 @Component({
   selector: 'app-maintenances',
@@ -45,26 +46,35 @@ export class Maintenances implements OnInit {
       motif: valeur.motif?.trim() ?? ''
     };
 
-    this.maintenanceService.erreur.set('');
+    const id =
+      this.maintenanceService.maintenanceEnEditionId();
 
-    this.maintenanceService.creer(dto).subscribe({
-      next: () => {
-        this.formulaire.reset({
-          materielId: null,
-          dateDebut: '',
-          motif: ''
-        });
+    if (id === null) {
+      this.creer(dto);
+    } else {
+      this.modifier(id, dto);
+    }
+  }
 
-        this.maintenanceService.charger();
-      },
-      error: err => {
-        const message =
-          typeof err.error === 'string'
-            ? err.error
-            : 'Impossible de créer la maintenance.';
+  modifierMaintenance(maintenance: Maintenance): void {
+    this.maintenanceService.maintenanceEnEditionId.set(
+      maintenance.id
+    );
 
-        this.maintenanceService.erreur.set(message);
-      }
+    this.formulaire.patchValue({
+      materielId: maintenance.materielId,
+      dateDebut: maintenance.dateDebut.substring(0, 10),
+      motif: maintenance.motif
+    });
+  }
+
+  annuler(): void {
+    this.maintenanceService.maintenanceEnEditionId.set(null);
+
+    this.formulaire.reset({
+      materielId: null,
+      dateDebut: '',
+      motif: ''
     });
   }
 
@@ -80,7 +90,78 @@ export class Maintenances implements OnInit {
     this.changerStatut(id, 'TERMINEE');
   }
 
-  private changerStatut(id: number, statut: string): void {
+  supprimer(maintenance: Maintenance): void {
+    if (
+      !confirm(
+        `Supprimer la maintenance de "${maintenance.materielNom}" ?`
+      )
+    ) {
+      return;
+    }
+
+    this.maintenanceService.erreur.set('');
+
+    this.maintenanceService.supprimer(maintenance.id).subscribe({
+      next: () => {
+        if (
+          this.maintenanceService.maintenanceEnEditionId()
+          === maintenance.id
+        ) {
+          this.annuler();
+        }
+
+        this.maintenanceService.charger();
+      },
+      error: err => {
+        this.afficherErreur(
+          err,
+          'Impossible de supprimer la maintenance.'
+        );
+      }
+    });
+  }
+
+  private creer(dto: CreateMaintenance): void {
+    this.maintenanceService.erreur.set('');
+
+    this.maintenanceService.creer(dto).subscribe({
+      next: () => {
+        this.annuler();
+        this.maintenanceService.charger();
+      },
+      error: err => {
+        this.afficherErreur(
+          err,
+          'Impossible de créer la maintenance.'
+        );
+      }
+    });
+  }
+
+  private modifier(
+    id: number,
+    dto: CreateMaintenance
+  ): void {
+    this.maintenanceService.erreur.set('');
+
+    this.maintenanceService.modifier(id, dto).subscribe({
+      next: () => {
+        this.annuler();
+        this.maintenanceService.charger();
+      },
+      error: err => {
+        this.afficherErreur(
+          err,
+          'Impossible de modifier la maintenance.'
+        );
+      }
+    });
+  }
+
+  private changerStatut(
+    id: number,
+    statut: string
+  ): void {
     this.maintenanceService.erreur.set('');
 
     this.maintenanceService.modifierStatut(id, statut).subscribe({
@@ -88,13 +169,23 @@ export class Maintenances implements OnInit {
         this.maintenanceService.charger();
       },
       error: err => {
-        const message =
-          typeof err.error === 'string'
-            ? err.error
-            : 'Impossible de modifier le statut.';
-
-        this.maintenanceService.erreur.set(message);
+        this.afficherErreur(
+          err,
+          'Impossible de modifier le statut.'
+        );
       }
     });
+  }
+
+  private afficherErreur(
+    err: any,
+    messageParDefaut: string
+  ): void {
+    const message =
+      typeof err.error === 'string'
+        ? err.error
+        : messageParDefaut;
+
+    this.maintenanceService.erreur.set(message);
   }
 }

@@ -38,7 +38,9 @@ public class MaintenanceService
         var materiel = await _materielRepository.GetByIdAsync(dto.MaterielId);
 
         if (materiel is null)
-            throw new InvalidOperationException("Le matériel n'existe pas.");
+            throw new InvalidOperationException(
+                "Le matériel n'existe pas."
+            );
 
         if (!materiel.Actif)
             throw new InvalidOperationException(
@@ -65,11 +67,59 @@ public class MaintenanceService
             );
     }
 
+    public async Task<Maintenance?> UpdateAsync(
+        int id,
+        UpdateMaintenanceDto dto)
+    {
+        var maintenance =
+            await _maintenanceRepository.GetByIdAsync(id);
+
+        if (maintenance is null)
+            return null;
+
+        if (maintenance.Statut == "TERMINEE")
+            throw new InvalidOperationException(
+                "Une maintenance terminée ne peut plus être modifiée."
+            );
+
+        if (dto.MaterielId <= 0)
+            throw new ArgumentException(
+                "Le matériel est obligatoire."
+            );
+
+        if (string.IsNullOrWhiteSpace(dto.Motif))
+            throw new ArgumentException(
+                "Le motif est obligatoire."
+            );
+
+        var materiel =
+            await _materielRepository.GetByIdAsync(dto.MaterielId);
+
+        if (materiel is null)
+            throw new InvalidOperationException(
+                "Le matériel n'existe pas."
+            );
+
+        if (!materiel.Actif)
+            throw new InvalidOperationException(
+                "Le matériel sélectionné est désactivé."
+            );
+
+        maintenance.MaterielId = dto.MaterielId;
+        maintenance.DateDebut = dto.DateDebut;
+        maintenance.Motif = dto.Motif.Trim();
+
+        await _maintenanceRepository.UpdateAsync(maintenance);
+
+        return await _maintenanceRepository.GetByIdAsync(id);
+    }
+
     public async Task<bool> UpdateStatutAsync(
         int id,
         UpdateMaintenanceStatutDto dto)
     {
-        var maintenance = await _maintenanceRepository.GetByIdAsync(id);
+        var maintenance =
+            await _maintenanceRepository.GetByIdAsync(id);
 
         if (maintenance is null)
             return false;
@@ -103,5 +153,21 @@ public class MaintenanceService
             statut,
             dateFin
         );
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var maintenance =
+            await _maintenanceRepository.GetByIdAsync(id);
+
+        if (maintenance is null)
+            return false;
+
+        if (maintenance.Statut != "PLANIFIEE")
+            throw new InvalidOperationException(
+                "Seule une maintenance planifiée peut être supprimée."
+            );
+
+        return await _maintenanceRepository.DeleteAsync(id);
     }
 }

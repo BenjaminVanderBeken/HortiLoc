@@ -1,7 +1,11 @@
 <section>
   <h1>Gestion des maintenances</h1>
 
-  <h2>Nouvelle maintenance</h2>
+  @if (maintenanceService.maintenanceEnEditionId() === null) {
+    <h2>Nouvelle maintenance</h2>
+  } @else {
+    <h2>Modifier la maintenance</h2>
+  }
 
   <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
 
@@ -16,7 +20,10 @@
           Sélectionner un matériel
         </option>
 
-        @for (materiel of materielService.materiels(); track materiel.id) {
+        @for (
+          materiel of materielService.materiels();
+          track materiel.id
+        ) {
           @if (materiel.actif) {
             <option [ngValue]="materiel.id">
               {{ materiel.nom }}
@@ -45,9 +52,22 @@
       ></textarea>
     </div>
 
-    <button type="submit">
-      Créer la maintenance
-    </button>
+    @if (maintenanceService.maintenanceEnEditionId() === null) {
+      <button type="submit">
+        Créer la maintenance
+      </button>
+    } @else {
+      <button type="submit">
+        Enregistrer les modifications
+      </button>
+
+      <button
+        type="button"
+        (click)="annuler()"
+      >
+        Annuler
+      </button>
+    }
 
   </form>
 
@@ -71,7 +91,7 @@
           <th>Date fin</th>
           <th>Motif</th>
           <th>Statut</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
@@ -101,9 +121,7 @@
             </td>
 
             <td>
-
               @switch (maintenance.statut) {
-
                 @case ('PLANIFIEE') {
                   Planifiée
                 }
@@ -119,14 +137,28 @@
                 @default {
                   {{ maintenance.statut }}
                 }
-
               }
-
             </td>
 
             <td>
 
+              @if (maintenance.statut !== 'TERMINEE') {
+                <button
+                  type="button"
+                  (click)="modifierMaintenance(maintenance)"
+                >
+                  Modifier
+                </button>
+              }
+
               @if (maintenance.statut === 'PLANIFIEE') {
+                <button
+                  type="button"
+                  (click)="supprimer(maintenance)"
+                >
+                  Supprimer
+                </button>
+
                 <button
                   type="button"
                   (click)="demarrer(maintenance.id)"

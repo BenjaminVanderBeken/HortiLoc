@@ -14,6 +14,7 @@ export class MaintenanceService {
   maintenances = signal<Maintenance[]>([]);
   chargement = signal(false);
   erreur = signal('');
+  maintenanceEnEditionId = signal<number | null>(null);
 
   charger(): void {
     this.chargement.set(true);
@@ -35,10 +36,26 @@ export class MaintenanceService {
     return this.http.post<Maintenance>(this.apiUrl, dto);
   }
 
+  modifier(
+    id: number,
+    dto: CreateMaintenance
+  ): Observable<Maintenance> {
+    return this.http.put<Maintenance>(
+      `${this.apiUrl}/${id}`,
+      dto
+    );
+  }
+
   modifierStatut(id: number, statut: string): Observable<void> {
     return this.http.patch<void>(
       `${this.apiUrl}/${id}/statut`,
       { statut }
+    );
+  }
+
+  supprimer(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
     );
   }
 }

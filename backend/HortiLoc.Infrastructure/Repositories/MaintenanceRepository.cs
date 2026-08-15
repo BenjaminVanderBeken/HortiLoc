@@ -98,6 +98,28 @@ public class MaintenanceRepository : IMaintenanceRepository
         );
     }
 
+    public async Task<bool> UpdateAsync(Maintenance maintenance)
+    {
+        const string sql = """
+            UPDATE maintenances
+            SET
+                materiel_id = @MaterielId,
+                date_debut = @DateDebut,
+                motif = @Motif
+            WHERE id = @Id;
+            """;
+
+        using var connection =
+            _connectionFactory.CreateConnection();
+
+        var lignes = await connection.ExecuteAsync(
+            sql,
+            maintenance
+        );
+
+        return lignes > 0;
+    }
+
     public async Task<bool> UpdateStatutAsync(
         int id,
         string statut,
@@ -122,6 +144,25 @@ public class MaintenanceRepository : IMaintenanceRepository
                 Statut = statut,
                 DateFin = dateFin
             }
+        );
+
+        return lignes > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        const string sql = """
+            DELETE FROM maintenances
+            WHERE id = @Id
+              AND statut = 'PLANIFIEE';
+            """;
+
+        using var connection =
+            _connectionFactory.CreateConnection();
+
+        var lignes = await connection.ExecuteAsync(
+            sql,
+            new { Id = id }
         );
 
         return lignes > 0;

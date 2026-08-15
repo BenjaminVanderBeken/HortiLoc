@@ -62,6 +62,31 @@ public class MaintenancesController : ControllerBase
         }
     }
 
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(
+        int id,
+        UpdateMaintenanceDto dto)
+    {
+        try
+        {
+            var maintenance =
+                await _maintenanceService.UpdateAsync(id, dto);
+
+            if (maintenance is null)
+                return NotFound();
+
+            return Ok(maintenance);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
     [HttpPatch("{id:int}/statut")]
     public async Task<IActionResult> UpdateStatut(
         int id,
@@ -80,6 +105,29 @@ public class MaintenancesController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var supprimee =
+                await _maintenanceService.DeleteAsync(id);
+
+            if (!supprimee)
+                return NotFound();
+
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
         }
     }
 }
