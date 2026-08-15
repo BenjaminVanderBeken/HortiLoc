@@ -322,4 +322,34 @@ public class LocationRepository : ILocationRepository
             throw;
         }
     }
-}
+
+public async Task<IEnumerable<Location>> GetByClientIdAsync(int clientId)
+{
+    const string sql = """
+        SELECT
+            l.id AS Id,
+            l.client_id AS ClientId,
+            c.nom AS ClientNom,
+            c.prenom AS ClientPrenom,
+            l.date_debut AS DateDebut,
+            l.date_fin_prevue AS DateFinPrevue,
+            l.date_retour AS DateRetour,
+            l.statut AS Statut,
+            l.montant_total AS MontantTotal,
+            l.notes AS Notes,
+            l.date_creation AS DateCreation
+        FROM locations l
+        INNER JOIN clients c
+            ON c.id = l.client_id
+        WHERE l.client_id = @ClientId
+        ORDER BY l.date_debut DESC, l.id DESC;
+        """;
+
+    using var connection =
+        _connectionFactory.CreateConnection();
+
+    return await connection.QueryAsync<Location>(
+        sql,
+        new { ClientId = clientId }
+    );
+}}

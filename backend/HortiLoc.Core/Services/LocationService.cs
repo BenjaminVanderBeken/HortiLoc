@@ -24,7 +24,13 @@ public class LocationService
     {
         return await _locationRepository.GetAllAsync();
     }
+public Task<IEnumerable<Location>> GetByClientIdAsync(int clientId)
+{
+    if (clientId <= 0)
+        throw new ArgumentException("Identifiant client invalide.");
 
+    return _locationRepository.GetByClientIdAsync(clientId);
+}
     public async Task<Location?> GetByIdAsync(int id)
     {
         return await _locationRepository.GetByIdAsync(id);

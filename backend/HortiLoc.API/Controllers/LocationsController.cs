@@ -1,6 +1,7 @@
 using HortiLoc.Core.DTOs;
 using HortiLoc.Core.Entities;
 using HortiLoc.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiLoc.API.Controllers;
@@ -16,6 +17,7 @@ public class LocationsController : ControllerBase
         _locationService = locationService;
     }
 
+    [Authorize(Roles = "ADMIN")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Location>>> GetAll()
     {
@@ -23,6 +25,7 @@ public class LocationsController : ControllerBase
         return Ok(locations);
     }
 
+    [Authorize(Roles = "ADMIN")]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Location>> GetById(int id)
     {
@@ -34,6 +37,7 @@ public class LocationsController : ControllerBase
         return Ok(location);
     }
 
+    [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<ActionResult<Location>> Create(CreateLocationDto dto)
     {
@@ -57,12 +61,13 @@ public class LocationsController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "ADMIN")]
     [HttpPatch("{id:int}/retour")]
     public async Task<IActionResult> Return(int id)
     {
         try
         {
-            bool retourne = await _locationService.ReturnAsync(id);
+            var retourne = await _locationService.ReturnAsync(id);
 
             if (!retourne)
                 return NotFound();
@@ -73,5 +78,24 @@ public class LocationsController : ControllerBase
         {
             return Conflict(ex.Message);
         }
+    }
+
+    [Authorize(Roles = "CLIENT")]
+    [HttpGet("mes-locations")]
+    public async Task<IActionResult> GetMesLocations()
+    {
+        var clientIdClaim = User.FindFirst("clientId")?.Value;
+
+        if (!int.TryParse(clientIdClaim, out var clientId))
+        {
+            return Unauthorized(
+                "Le compte connecté n'est associé à aucun client."
+            );
+        }
+
+        var locations =
+            await _locationService.GetByClientIdAsync(clientId);
+
+        return Ok(locations);
     }
 }

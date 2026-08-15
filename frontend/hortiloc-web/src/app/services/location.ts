@@ -37,4 +37,9 @@ export class LocationService {
   retourner(id: number): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}/retour`, {});
   }
+  mesLocations(): Observable<Location[]> {
+  return this.http.get<Location[]>(
+    `${this.apiUrl}/mes-locations`
+  );
+}
 }

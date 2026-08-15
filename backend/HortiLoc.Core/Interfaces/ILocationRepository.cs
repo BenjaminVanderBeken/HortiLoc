@@ -8,4 +8,5 @@ public interface ILocationRepository
     Task<Location?> GetByIdAsync(int id);
     Task<int> CreateAsync(Location location);
     Task<bool> ReturnAsync(int id, DateTime dateRetour);
+    Task<IEnumerable<Location>> GetByClientIdAsync(int clientId);
 }

@@ -4,15 +4,85 @@
     <p>Gestion de location de matériel horticole</p>
   </div>
 
-  <nav class="navigation">
-    <a routerLink="/clients" routerLinkActive="actif">Clients</a>
-<a routerLink="/categories" routerLinkActive="actif">Catégories</a>
-<a routerLink="/materiels" routerLinkActive="actif">Matériel</a>
-<a routerLink="/locations" routerLinkActive="actif">Locations</a>
-<a routerLink="/maintenances" routerLinkActive="actif">Maintenances</a>
+  @if (authService.estConnecte()) {
 
-<router-outlet></router-outlet>
-  </nav>
+    <nav class="navigation">
+
+      @if (authService.estAdmin()) {
+        <a
+          routerLink="/clients"
+          routerLinkActive="actif"
+        >
+          Clients
+        </a>
+
+        <a
+          routerLink="/categories"
+          routerLinkActive="actif"
+        >
+          Catégories
+        </a>
+
+        <a
+          routerLink="/materiels"
+          routerLinkActive="actif"
+        >
+          Matériel
+        </a>
+
+        <a
+          routerLink="/locations"
+          routerLinkActive="actif"
+        >
+          Locations
+        </a>
+
+        <a
+          routerLink="/maintenances"
+          routerLinkActive="actif"
+        >
+          Maintenances
+        </a>
+      }
+
+      @if (authService.estClient()) {
+        <a
+          routerLink="/mes-locations"
+          routerLinkActive="actif"
+        >
+          Mes locations
+        </a>
+      }
+
+    </nav>
+
+    <div>
+      <span>
+        {{ authService.utilisateur()?.email }}
+        -
+        {{ authService.utilisateur()?.role }}
+      </span>
+
+      <button
+        type="button"
+        (click)="deconnecter()"
+      >
+        Déconnexion
+      </button>
+    </div>
+
+  } @else {
+
+    <nav class="navigation">
+      <a
+        routerLink="/login"
+        routerLinkActive="actif"
+      >
+        Connexion
+      </a>
+    </nav>
+
+  }
 </header>
 
 <main class="app-content">

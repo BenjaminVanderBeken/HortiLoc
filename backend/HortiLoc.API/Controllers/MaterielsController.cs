@@ -2,11 +2,13 @@ using HortiLoc.Core.DTOs;
 using HortiLoc.Core.Entities;
 using HortiLoc.Core.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HortiLoc.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "ADMIN")]
 public class MaterielsController : ControllerBase
 {
     private readonly MaterielService _materielService;
