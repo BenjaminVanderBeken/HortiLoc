@@ -40,6 +40,7 @@ CREATE TABLE materiels (
     categorie_id INT NOT NULL,
     nom VARCHAR(150) NOT NULL,
     description VARCHAR(500),
+    image_url VARCHAR(255) NULL,
     prix_journalier DECIMAL(10,2) NOT NULL,
     quantite_totale INT NOT NULL DEFAULT 1,
     quantite_disponible INT NOT NULL DEFAULT 1,

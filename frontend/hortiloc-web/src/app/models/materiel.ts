@@ -4,6 +4,7 @@ export interface Materiel {
   categorieNom: string;
   nom: string;
   description: string | null;
+  imageUrl: string | null;
   prixJournalier: number;
   quantiteTotale: number;
   quantiteDisponible: number;

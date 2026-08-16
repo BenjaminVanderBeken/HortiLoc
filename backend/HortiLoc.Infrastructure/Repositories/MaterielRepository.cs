@@ -23,6 +23,7 @@ public class MaterielRepository : IMaterielRepository
                 c.nom AS CategorieNom,
                 m.nom AS Nom,
                 m.description AS Description,
+                m.image_url AS ImageUrl,
                 m.prix_journalier AS PrixJournalier,
                 m.quantite_totale AS QuantiteTotale,
                 m.quantite_disponible AS QuantiteDisponible,
@@ -49,6 +50,7 @@ public class MaterielRepository : IMaterielRepository
                 c.nom AS CategorieNom,
                 m.nom AS Nom,
                 m.description AS Description,
+                m.image_url AS ImageUrl,
                 m.prix_journalier AS PrixJournalier,
                 m.quantite_totale AS QuantiteTotale,
                 m.quantite_disponible AS QuantiteDisponible,
@@ -76,6 +78,7 @@ public class MaterielRepository : IMaterielRepository
                 categorie_id,
                 nom,
                 description,
+                image_url,
                 prix_journalier,
                 quantite_totale,
                 quantite_disponible,
@@ -85,6 +88,7 @@ public class MaterielRepository : IMaterielRepository
                 @CategorieId,
                 @Nom,
                 @Description,
+                @ImageUrl,
                 @PrixJournalier,
                 @QuantiteTotale,
                 @QuantiteDisponible,
@@ -107,6 +111,7 @@ public class MaterielRepository : IMaterielRepository
                 categorie_id = @CategorieId,
                 nom = @Nom,
                 description = @Description,
+                image_url = @ImageUrl,
                 prix_journalier = @PrixJournalier,
                 quantite_totale = @QuantiteTotale,
                 quantite_disponible = @QuantiteDisponible
@@ -115,7 +120,8 @@ public class MaterielRepository : IMaterielRepository
 
         using var connection = _connectionFactory.CreateConnection();
 
-        int lignesModifiees = await connection.ExecuteAsync(sql, materiel);
+        int lignesModifiees =
+            await connection.ExecuteAsync(sql, materiel);
 
         return lignesModifiees > 0;
     }

@@ -8,50 +8,94 @@
   }
 
   <form [formGroup]="formulaire" (ngSubmit)="enregistrer()">
-
     <div>
       <label for="categorie">Catégorie</label>
 
       <select id="categorie" formControlName="categorieId">
-  <option [ngValue]="null">
-    Sélectionner une catégorie
-  </option>
+        <option [ngValue]="null">
+          Sélectionner une catégorie
+        </option>
 
-  @for (categorie of categorieService.categories(); track categorie.id) {
-    @if (categorie.actif) {
-      <option [ngValue]="categorie.id">
-        {{ categorie.nom }}
-      </option>
-    }
-  }
-</select>
+        @for (categorie of categorieService.categories(); track categorie.id) {
+          @if (categorie.actif) {
+            <option [ngValue]="categorie.id">
+              {{ categorie.nom }}
+            </option>
+          }
+        }
+      </select>
     </div>
 
     <div>
       <label for="nom">Nom</label>
-      <input id="nom" type="text" formControlName="nom">
+      <input
+        id="nom"
+        type="text"
+        formControlName="nom"
+      >
     </div>
 
     <div>
       <label for="description">Description</label>
-      <input id="description" type="text" formControlName="description">
+      <input
+        id="description"
+        type="text"
+        formControlName="description"
+      >
     </div>
 
     <div>
+      <label for="imageUrl">Image</label>
+      <input
+        id="imageUrl"
+        type="text"
+        formControlName="imageUrl"
+        placeholder="/images/materiels/tronconneuse.jpg"
+      >
+    </div>
+
+    @if (formulaire.controls.imageUrl.value) {
+      <div class="apercu-image">
+        <p>Aperçu :</p>
+
+        <img
+          [src]="formulaire.controls.imageUrl.value"
+          alt="Aperçu du matériel"
+        >
+      </div>
+    }
+
+    <div>
       <label for="prix">Prix journalier</label>
-      <input id="prix" type="number" min="0" step="0.01" formControlName="prixJournalier">
+      <input
+        id="prix"
+        type="number"
+        min="0"
+        step="0.01"
+        formControlName="prixJournalier"
+      >
     </div>
 
     <div>
       <label for="quantite">Quantité totale</label>
-      <input id="quantite" type="number" min="1" formControlName="quantiteTotale">
+      <input
+        id="quantite"
+        type="number"
+        min="1"
+        formControlName="quantiteTotale"
+      >
     </div>
 
     @if (materielService.materielEnEditionId() === null) {
       <button type="submit">Ajouter</button>
     } @else {
-      <button type="submit">Enregistrer les modifications</button>
-      <button type="button" (click)="annuler()">Annuler</button>
+      <button type="submit">
+        Enregistrer les modifications
+      </button>
+
+      <button type="button" (click)="annuler()">
+        Annuler
+      </button>
     }
   </form>
 
@@ -69,6 +113,7 @@
     <table>
       <thead>
         <tr>
+          <th>Photo</th>
           <th>Nom</th>
           <th>Catégorie</th>
           <th>Description</th>
@@ -83,6 +128,18 @@
       <tbody>
         @for (materiel of materielService.materiels(); track materiel.id) {
           <tr>
+            <td>
+              @if (materiel.imageUrl) {
+                <img
+                  [src]="materiel.imageUrl"
+                  [alt]="materiel.nom"
+                  class="materiel-photo"
+                >
+              } @else {
+                <span>Aucune photo</span>
+              }
+            </td>
+
             <td>{{ materiel.nom }}</td>
             <td>{{ materiel.categorieNom }}</td>
             <td>{{ materiel.description || '-' }}</td>
@@ -99,16 +156,25 @@
             </td>
 
             <td>
-              <button type="button" (click)="modifier(materiel)">
+              <button
+                type="button"
+                (click)="modifier(materiel)"
+              >
                 Modifier
               </button>
 
               @if (materiel.actif) {
-                <button type="button" (click)="desactiver(materiel)">
+                <button
+                  type="button"
+                  (click)="desactiver(materiel)"
+                >
                   Désactiver
                 </button>
               } @else {
-                <button type="button" (click)="reactiver(materiel)">
+                <button
+                  type="button"
+                  (click)="reactiver(materiel)"
+                >
                   Réactiver
                 </button>
               }

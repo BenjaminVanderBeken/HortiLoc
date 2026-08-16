@@ -20,6 +20,7 @@ export class Materiels implements OnInit {
     categorieId: [null as number | null, Validators.required],
     nom: ['', Validators.required],
     description: [''],
+    imageUrl: [''],
     prixJournalier: [0, [Validators.required, Validators.min(0)]],
     quantiteTotale: [1, [Validators.required, Validators.min(1)]]
   });
@@ -41,6 +42,7 @@ export class Materiels implements OnInit {
       categorieId: Number(valeur.categorieId),
       nom: valeur.nom!,
       description: valeur.description || null,
+      imageUrl: valeur.imageUrl?.trim() || null,
       prixJournalier: valeur.prixJournalier!,
       quantiteTotale: valeur.quantiteTotale!
     };
@@ -89,6 +91,7 @@ export class Materiels implements OnInit {
       categorieId: materiel.categorieId,
       nom: materiel.nom,
       description: materiel.description ?? '',
+      imageUrl: materiel.imageUrl ?? '',
       prixJournalier: materiel.prixJournalier,
       quantiteTotale: materiel.quantiteTotale
     });
@@ -101,6 +104,7 @@ export class Materiels implements OnInit {
       categorieId: null,
       nom: '',
       description: '',
+      imageUrl: '',
       prixJournalier: 0,
       quantiteTotale: 1
     });
