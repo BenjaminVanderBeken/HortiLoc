@@ -1,0 +1,32 @@
+.comptes-demo {
+  margin-bottom: 24px;
+  padding: 18px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #f7f7f7;
+}
+
+.comptes-demo h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.comptes-demo > p {
+  margin-bottom: 16px;
+}
+
+.compte-demo {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: white;
+}
+
+.compte-demo strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.compte-demo p {
+  margin: 4px 0;
+}

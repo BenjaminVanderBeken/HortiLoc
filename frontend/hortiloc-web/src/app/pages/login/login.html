@@ -1,6 +1,23 @@
 <section>
   <h1>Connexion HortiLoc</h1>
 
+  <div class="comptes-demo">
+    <h3>Comptes de démonstration</h3>
+    <p>Utilisez l'un des comptes suivants pour tester l'application.</p>
+
+    <div class="compte-demo">
+      <strong>Administrateur</strong>
+      <p>Email : admin@hortiloc.be</p>
+      <p>Mot de passe : Admin123!</p>
+    </div>
+
+    <div class="compte-demo">
+      <strong>Client</strong>
+      <p>Email : client@hortiloc.be</p>
+      <p>Mot de passe : Client123!</p>
+    </div>
+  </div>
+
   <form
     [formGroup]="formulaire"
     (ngSubmit)="connecter()"
